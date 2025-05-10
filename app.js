@@ -34,7 +34,8 @@ app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
     "http://localhost:3000", // Local frontend
-    process.env.FRONTEND_URL  // Production frontend
+    process.env.FRONTEND_URL,  // Production frontend
+    process.env.FRONTEND_URL_WWW 
 ];
 
 
