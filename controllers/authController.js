@@ -88,17 +88,21 @@ export const getMe = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
         let subscriptionData;
-        if (user.stripeSubscriptionId) {
-            const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-            const productId = subscription.items.data[0].price.product;
-            const product = await stripe.products.retrieve(productId);  // Fetch the product details
-            const currentPeriodEnd = subscription.billing_cycle_anchor + 30 * 24 * 60 * 60;
-            subscriptionData = {
-                plan: product.name,
-                currentPeriodEnd,
-                isAutoRenew: !subscription.cancel_at_period_end,
-                status: subscription.status,
+         try {
+            if (user.stripeSubscriptionId) {
+                const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+                const productId = subscription.items.data[0].price.product;
+                const product = await stripe.products.retrieve(productId);  // Fetch the product details
+                const currentPeriodEnd = subscription.billing_cycle_anchor + 30 * 24 * 60 * 60;
+                subscriptionData = {
+                    plan: product.name,
+                    currentPeriodEnd,
+                    isAutoRenew: !subscription.cancel_at_period_end,
+                    status: subscription.status,
+                }
             }
+        } catch (err) {
+            console.log(err.message);
         }
 
         res.status(200).json({ data: { user, subscription: subscriptionData } });
