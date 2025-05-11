@@ -57,7 +57,7 @@ export const updateUser = async (req, res) => {
             lastname,
             gender,
             dob,
-            socials: {
+            address: {
                 state,
                 city,
                 country,
