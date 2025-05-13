@@ -75,6 +75,7 @@ export const getAllBusinesses = async (req, res) => {
       country,
       bordtype,
       agelimit,
+      user,
       search,
       sort = 'createdAt_desc',
     } = req.query;
@@ -92,7 +93,9 @@ export const getAllBusinesses = async (req, res) => {
     if (country) matchStage['location.country'] = buildRegex(country);
     if (bordtype) matchStage.bordtype = buildRegex(bordtype);
     if (agelimit) matchStage.agelimit = { $lte: parseInt(agelimit) };
+    if (user) matchStage.userId = new mongoose.Types.ObjectId(user);
 
+    
     if (search) {
       matchStage.$or = [
         { name: { $regex: search, $options: 'i' } },
