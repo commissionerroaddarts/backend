@@ -15,17 +15,31 @@ router.get('/plans', async (req, res) => {
         const products = await stripe.products.list({ active: true });
         const prices = await stripe.prices.list({ active: true });
 
+        
         // Combine product and price data
         const plans = products.data.map(product => {
-            const priceObj = prices.data.find(price => price.product === product.id);
+            const priceObj = prices.data.filter(price => price.product === product.id).reduce((acc, price) => {
+                if (price.recurring?.interval === 'month') {
+                    acc.monthly = {
+                        priceId: price.id,
+                        amount: price.unit_amount,
+                        currency: price.currency,
+                    };
+                } else if (price.recurring?.interval === 'year') {
+                    acc.yearly = {
+                        priceId: price.id,
+                        amount: price.unit_amount,
+                        currency: price.currency,
+                    };
+                }
+                return acc;
+            }, {});
+
             return {
                 id: product.id,
                 name: product.name,
-                description: product.description || '', // Fetch marketing description
-                features: product.marketing_features, // Fetch marketing features from metadata
-                price: priceObj?.unit_amount || 0,
-                priceId: priceObj?.id || null,
-                currency: priceObj?.currency || 'usd',
+                description: product.description,
+                prices: priceObj, // Include both yearly and monthly prices from acc
             };
         });
 
