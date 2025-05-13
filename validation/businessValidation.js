@@ -19,11 +19,7 @@ const createValidation = Joi.object({
         zipcode: Joi.string().optional()
     }).optional(),
 
-    media: Joi.object({
-        images: Joi.array().items(Joi.string()).optional(),
-        video: Joi.string().optional(),
-        logo: Joi.string().optional()
-    }).optional(),
+    
 
     timings: Joi.object({
         mon: Joi.object({
