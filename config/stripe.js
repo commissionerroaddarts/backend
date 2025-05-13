@@ -22,6 +22,7 @@ export const stripeWebhookFn = async (req, res) => {
             const user = await User.findById(userId);
             if (user) {
                 user.stripeSubscriptionId = subscriptionId;
+                user.role = 'owner';
                 await user.save();
                 console.log(`✅ Subscription stored for ${userId}`);
             } else {
