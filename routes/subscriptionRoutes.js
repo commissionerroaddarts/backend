@@ -39,6 +39,7 @@ router.get('/plans', async (req, res) => {
                 id: product.id,
                 name: product.name,
                 description: product.description,
+                features: product.marketing_features,
                 prices: priceObj, // Include both yearly and monthly prices from acc
             };
         });
