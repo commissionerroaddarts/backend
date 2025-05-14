@@ -16,17 +16,17 @@ export const stripeWebhookFn = async (req, res) => {
     try {
         if (event.type === 'checkout.session.completed') {
             const session = event.data.object;
-            const userId = session.metadata.userId;
+            const email = session.metadata.email;
             const subscriptionId = session.subscription;
 
-            const user = await User.findById(userId);
+            const user = await User.findOne({email: email});
             if (user) {
                 user.stripeSubscriptionId = subscriptionId;
                 user.role = 'owner';
                 await user.save();
-                console.log(`✅ Subscription stored for ${userId}`);
+                console.log(`✅ Subscription stored for ${email}`);
             } else {
-                console.warn(`⚠️ No user found for email: ${userId}`);
+                console.warn(`⚠️ No user found for email: ${email}`);
             }
         }
     } catch (error) {
