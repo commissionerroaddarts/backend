@@ -7,6 +7,7 @@ import sendMail from '../config/mail.js';
 import { OTP, WELCOME } from '../constants/emailTemplets.js';
 import Stripe from 'stripe';
 import jwt from 'jsonwebtoken';
+import { getStripeSubscriptionIdByEmail } from '../utils/stripe.js';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -33,7 +34,16 @@ export const signup = async (req, res) => {
 
         // Save refreshToken in the user document
         user.refreshToken = refreshToken;
+
+
+        const stripeSubscriptionId = await getStripeSubscriptionIdByEmail(user.email);
+        if(stripeSubscriptionId){
+            user.role = 'owner';
+            user.stripeSubscriptionId = stripeSubscriptionId;
+        }
         await user.save();
+
+
 
         res
             .cookie('token', token, cookieOptions)
@@ -88,7 +98,7 @@ export const getMe = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
         let subscriptionData;
-         try {
+        try {
             if (user.stripeSubscriptionId) {
                 const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
                 const productId = subscription.items.data[0].price.product;
@@ -195,7 +205,7 @@ export const verifyEmail = async (req, res) => {
 
 export const verifyEmailTemp = async (req, res) => {
     try {
-        
+
         await User.findByIdAndUpdate(req.user.id, { status: "verified" });
 
         res.redirect(`${process.env.FRONTEND_URL}/?emailverification=success`);
@@ -208,7 +218,7 @@ export const verifyEmailTemp = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
     try {
-        const {  newPassword } = req.body;
+        const { newPassword } = req.body;
 
         if (!newPassword) {
             return res.status(400).json({ message: "Please provide new passwords." });
@@ -226,7 +236,7 @@ export const updatePassword = async (req, res) => {
         //         return res.status(401).json({ message: "Current password is incorrect." });
         //     }
         // }
-        
+
 
         user.password = newPassword; // Password hashing handled in model pre-save
         await user.save();
