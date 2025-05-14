@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import dotenv from "dotenv";
 import { generateAccessToken, generateRefreshToken } from "../utils/helper.js";
 import User from "../models/User.js";
+import { getStripeSubscriptionIdByEmail } from "../utils/stripe.js";
 
 dotenv.config();
 
@@ -30,7 +31,14 @@ passport.use(
                         refreshToken: "",
                         status: "verified",
                     });
+                    const stripeSubscriptionId = await getStripeSubscriptionIdByEmail(user.email);
+                    if (stripeSubscriptionId) {
+                        user.role = 'owner';
+                        user.stripeSubscriptionId = stripeSubscriptionId;
+                    }
                 }
+
+
 
                 // Generate JWT tokens
                 const token = generateAccessToken(user);
@@ -38,6 +46,9 @@ passport.use(
 
                 // Store refresh token in the database
                 user.refreshToken = refreshToken;
+
+
+
                 await user.save();
 
                 done(null, user, { token, refreshToken, isNewUser });
