@@ -8,6 +8,7 @@ import { OTP, WELCOME } from '../constants/emailTemplets.js';
 import Stripe from 'stripe';
 import jwt from 'jsonwebtoken';
 import { getStripeSubscriptionIdByEmail } from '../utils/stripe.js';
+import axios from 'axios';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -37,7 +38,7 @@ export const signup = async (req, res) => {
 
 
         const stripeSubscriptionId = await getStripeSubscriptionIdByEmail(user.email);
-        if(stripeSubscriptionId){
+        if (stripeSubscriptionId) {
             user.role = 'owner';
             user.stripeSubscriptionId = stripeSubscriptionId;
         }
@@ -261,4 +262,31 @@ export const logout = async (req, res) => {
     res.clearCookie('token', cookieOptions);
     res.clearCookie('refreshToken', cookieOptions);
     res.status(200).json({ message: "Logged out successfully" });
+};
+
+export const verifyCaptcha = async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ success: false, message: 'Token missing' });
+    }
+
+    try {
+        const response = await axios.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            null,
+            {
+                params: {
+                    secret: process.env.RECAPTCHA_SECRET_KEY, // Store in .env
+                    response: token,
+                },
+            }
+        );
+
+        const isSuccess = response.data.success;
+        res.status(200).json({ success: isSuccess });
+    } catch (error) {
+        console.error('Captcha verification error:', error.message);
+        res.status(500).json({ success: false, message: 'Verification failed' });
+    }
 };
