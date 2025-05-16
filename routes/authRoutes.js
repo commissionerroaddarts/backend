@@ -13,7 +13,7 @@ router.post('/change-password', authMiddleware, updatePassword);
 router.get('/verify', verifyEmail);
 router.get('/tempverify', authMiddleware, verifyEmailTemp);
 router.get('/me', authMiddleware, getMe);
-router.get('/verify-captcha', verifyCaptcha);
+router.post('/verify-captcha', verifyCaptcha);
 
 // -------------------- Google OAuth --------------------
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] })); // Login, Redirect to Google for OAuth
