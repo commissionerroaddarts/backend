@@ -101,7 +101,7 @@ const sendMail = async (data) => {
     <body>
     
       <div class="container">
-        <img src="https://ik.imagekit.io/zf0veufne/Road%20Dart/image.jpg?updatedAt=1743856127183" alt="Road Dart">
+        <img src="https://res.cloudinary.com/dfdlxyml9/image/upload/v1747412127/roaddarts_wwhyzt.jpg" alt="Road Dart">
     `
   const body = `    <h1>{{heading}}</h1>
     
