@@ -41,3 +41,43 @@ export const OTP = (email, firstname, token) => {
     };
     return data
 };
+
+export const CONTACT_US = ({ firstname, lastname, email, phone, message }) => {
+    const data = {
+        subject: `New Contact Form Submission from ${firstname} ${lastname}`,
+        recipient: email,
+        html: `
+            <h2>New Contact Form Submission</h2>
+            <p>You have received a new message from the contact form on Road Dart Stories.</p>
+            <hr />
+            <p><strong>Full Name:</strong> ${firstname} ${lastname}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Message:</strong></p>
+            <p style="white-space: pre-line;">${message}</p>
+            <hr />
+            <p>Please respond to this inquiry as soon as possible.</p>
+            <p>Best regards,<br />Road Dart Stories Notification System</p>
+        `
+    };
+    return data;
+};
+
+
+export const THANKS_FOR_CONTACTING = ({ email, firstname }) => {
+    const data = {
+        subject: "Thanks for Contacting Road Dart Stories",
+        recipient: email,
+        html: `
+            <h1>Thank You for Reaching Out!</h1>
+            <p>Hi ${firstname},</p>
+            <p>We’ve received your message and our team will get back to you as soon as possible. We appreciate you taking the time to connect with us.</p>
+            <p>In the meantime, feel free to explore our platform and learn more about how Road Dart Stories can help you connect, collaborate, and grow.</p>
+            <p>If your inquiry is urgent, don’t hesitate to reply to this email directly or contact us at <a href="mailto:support@roaddartstories.com">support@roaddartstories.com</a>.</p>
+            <p>Thanks again — we’ll be in touch soon!</p>
+            <p>Best regards,<br />The Road Darts Team</p>
+            <a href="${process.env.FRONTEND_URL}" class="button">Visit Our Website</a>
+        `
+    };
+    return data;
+};
