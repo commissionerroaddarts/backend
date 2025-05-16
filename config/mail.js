@@ -1,32 +1,35 @@
-import nodemailer from "nodemailer";
+// import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { Resend } from "resend";
 dotenv.config();
 
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-let transporter = null;
 
-// Create a singleton transporter instance
-const getTransporter = () => {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      // service: "gmail",
-      host: process.env.EMAIL_HOST,
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-      connectionTimeout: 10000,  // 10 seconds
-      greetingTimeout: 5000,     // 5 seconds
-      socketTimeout: 10000,
-      debug: true,
-      logger: true,
-    });
-  }
-  return transporter;
-};
+// let transporter = null;
+
+// // Create a singleton transporter instance
+// const getTransporter = () => {
+//   if (!transporter) {
+//     transporter = nodemailer.createTransport({
+//       // service: "gmail",
+//       host: process.env.EMAIL_HOST,
+//       port: 587,
+//       secure: false, // true for 465, false for other ports
+//       auth: {
+//         user: process.env.EMAIL_USERNAME,
+//         pass: process.env.EMAIL_PASSWORD,
+//       },
+//       connectionTimeout: 10000,  // 10 seconds
+//       greetingTimeout: 5000,     // 5 seconds
+//       socketTimeout: 10000,
+//       debug: true,
+//       logger: true,
+//     });
+//   }
+//   return transporter;
+// };
 
 
 
@@ -111,42 +114,27 @@ const sendMail = async (data) => {
 
 
   try {
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USERNAME,
+    //   to: data.recipient,
+    //   subject: data.subject,
+    //   // text: "",
+    //   html: header + data.html + `</div>` + footer,
+    // };
+    // const transporter = getTransporter();
+    // await transporter.verify();
+    // console.log("Server is ready to take our messages");
+    // const info = await transporter.sendMail(mailOptions);
 
-    // const emailObj = data.html
 
-    // const emailContent = emailObj.replace(
-    //     /{{(.*?)}}/g,
-    //     (reference, perimeter) => data[perimeter] || reference
-    // );
-
-
-
-    const mailOptions = {
-      from: process.env.EMAIL_USERNAME,
+    const response = await resend.emails.send({
+      from: 'Road Dart <support@roaddarts.com>', 
       to: data.recipient,
       subject: data.subject,
-      // text: "",
       html: header + data.html + `</div>` + footer,
-    };
-
-    //subject recipent html
+    });
 
 
-    const transporter = getTransporter();
-
-
-    await transporter.verify();
-    console.log("Server is ready to take our messages");
-
-    // transporter.verify((error, success) => {
-    //   if (error) {
-    //     console.log("Error in mail.js", error.message);
-    //   } else {
-    //   }
-    // });
-
-
-    const info = await transporter.sendMail(mailOptions);
     console.log(data.subject + " Email sent to ", data.recipient);
   } catch (error) {
     console.log("Error in mail.js", error.message);
