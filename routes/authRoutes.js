@@ -10,7 +10,7 @@ router.post('/signup', signup);
 router.post('/login', loginUser);
 router.post('/logout', authMiddleware, logout);
 router.post('/change-password', authMiddleware, updatePassword);
-router.get('/verify',authMiddleware, verifyEmail);
+router.get('/verify', verifyEmail);
 router.get('/tempverify', authMiddleware, verifyEmailTemp);
 router.get('/me', authMiddleware, getMe);
 router.get('/verify-captcha', verifyCaptcha);
