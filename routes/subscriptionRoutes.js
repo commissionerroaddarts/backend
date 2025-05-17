@@ -123,7 +123,7 @@ router.post('/checkout', async (req, res) => {
             standard: "standard-1-month",
             premium: "premium-1-month"
         },
-        DARTSOCIETY: {
+        DARTVENUE: {
             basic: "basic-1-month",
             standard: "standard-1-month",
             premium: "premium-1-month"
