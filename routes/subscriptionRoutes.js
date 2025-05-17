@@ -19,13 +19,13 @@ router.get('/plans', async (req, res) => {
         const plans = products.data.map(product => {
             const priceObj = prices.data.filter(price => price.product === product.id).reduce((acc, price) => {
                 if (price.recurring?.interval === 'month') {
-                    acc.monthly = {
+                    acc.yearly = {
                         priceId: price.id,
-                        amount: price.unit_amount,
+                        amount: price.unit_amount * 12,
                         currency: price.currency,
                     };
-                } else if (price.recurring?.interval === 'year') {
-                    acc.yearly = {
+                } else if (!price.recurring) {
+                    acc.monthly = {
                         priceId: price.id,
                         amount: price.unit_amount,
                         currency: price.currency,
@@ -109,7 +109,7 @@ router.post('/create-payment-intent', async (req, res) => {
 
 
 router.post('/checkout', async (req, res) => {
-    const { priceId , email, promoCode} = req.body;
+    const { priceId, email, promoCode } = req.body;
     // const userId = req.user.id;  // Assuming userId comes from authenticated request
     // const email = req.user.email;  // Optional, you can use email in the metadata or for other purposes
 
@@ -117,7 +117,7 @@ router.post('/checkout', async (req, res) => {
         return res.status(400).json({ error: 'Missing priceId in request body' });
     }
 
-    if (!email){
+    if (!email) {
         return res.status(400).json({ error: 'Missing email in request body' });
     }
 
@@ -149,20 +149,20 @@ router.post('/checkout', async (req, res) => {
                     quantity: 1,
                 },
             ],
-            allow_promotion_codes: promoCode ? undefined: true,
+            allow_promotion_codes: promoCode ? undefined : true,
             discounts: promoCode
                 ? [
                     {
-                      promotion_code: (
-                        await stripe.promotionCodes.list({ code: promoCode, active: true })
-                      ).data[0]?.id,
+                        promotion_code: (
+                            await stripe.promotionCodes.list({ code: promoCode, active: true })
+                        ).data[0]?.id,
                     },
-                  ]
+                ]
                 : [],
 
             return_url: `${process.env.FRONTEND_URL}/return?session_id={CHECKOUT_SESSION_ID}`,
             metadata: {
-                email: email.trim(), 
+                email: email.trim(),
             },
         });
 
