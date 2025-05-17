@@ -117,9 +117,6 @@ router.post('/checkout', async (req, res) => {
     // const email = req.user.email;  // Optional, you can use email in the metadata or for other purposes
 
 
-    if(!plan)
-        plan = "basic";
-
    const  discountamount = {
         DARTCLUB10: {
             basic: "basic-1-month",
@@ -139,7 +136,7 @@ router.post('/checkout', async (req, res) => {
     }
 
     const promoCodeKey = toUpper(promoCode);
-    const couponId = discountamount[promoCodeKey]?.[plan];
+    const couponId = discountamount[promoCodeKey]?.[plan ?? "basic"];
     const selectedDiscount = couponId ? [{ coupon: couponId }] : [];
 
     if (!priceId) {
