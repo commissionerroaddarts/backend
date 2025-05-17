@@ -136,7 +136,7 @@ router.post('/checkout', async (req, res) => {
     }
 
     const promoCodeKey = toUpper(promoCode);
-    const couponId = discountamount[promoCodeKey]?.[plan ?? "basic"];
+    const couponId = discountamount[promoCodeKey]?.[plan];
     const selectedDiscount = couponId ? [{ coupon: couponId }] : [];
 
     if (!priceId) {
