@@ -129,9 +129,7 @@ router.post('/checkout', async (req, res) => {
             premium: "premium-1-month"
         },
         FREEAD365: {
-            basic: "basic-1-month",
-            standard: "standard-1-month",
-            premium: "premium-1-month"
+            standard: "free-ad-365"
         },
     }
 
