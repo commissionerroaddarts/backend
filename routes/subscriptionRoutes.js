@@ -6,6 +6,9 @@ import { authMiddleware } from '../middlewares/authMiddleware.js';
 import bodyParser from 'body-parser';
 import { stripeWebhookFn } from '../config/stripe.js';
 
+import pkg from 'lodash';
+const { toUpper } = pkg;
+
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const router = express.Router();
 
@@ -109,15 +112,41 @@ router.post('/create-payment-intent', async (req, res) => {
 
 
 router.post('/checkout', async (req, res) => {
-    const { priceId , email, promoCode} = req.body;
+    const { priceId, email, promoCode, plan } = req.body;
     // const userId = req.user.id;  // Assuming userId comes from authenticated request
     // const email = req.user.email;  // Optional, you can use email in the metadata or for other purposes
+
+
+    if(!plan)
+        plan = "basic";
+
+   const  discountamount = {
+        DARTCLUB10: {
+            basic: "basic-1-month",
+            standard: "standard-1-month",
+            premium: "premium-1-month"
+        },
+        DARTSOCIETY: {
+            basic: "basic-1-month",
+            standard: "standard-1-month",
+            premium: "premium-1-month"
+        },
+        FREEAD365: {
+            basic: "basic-1-month",
+            standard: "standard-1-month",
+            premium: "premium-1-month"
+        },
+    }
+
+    const promoCodeKey = toUpper(promoCode);
+    const couponId = discountamount[promoCodeKey]?.[plan];
+    const selectedDiscount = couponId ? [{ coupon: couponId }] : [];
 
     if (!priceId) {
         return res.status(400).json({ error: 'Missing priceId in request body' });
     }
 
-    if (!email){
+    if (!email) {
         return res.status(400).json({ error: 'Missing email in request body' });
     }
 
@@ -149,20 +178,23 @@ router.post('/checkout', async (req, res) => {
                     quantity: 1,
                 },
             ],
-            allow_promotion_codes: promoCode ? undefined: true,
-            discounts: promoCode
-                ? [
-                    {
-                      promotion_code: (
-                        await stripe.promotionCodes.list({ code: promoCode, active: true })
-                      ).data[0]?.id,
-                    },
-                  ]
-                : [],
+            // allow_promotion_codes: false,
+            discounts: selectedDiscount,
+
+            // allow_promotion_codes: promoCode ? undefined : true,
+            // promoCode
+            //     ? [
+            //         {
+            //             promotion_code: (
+            //                 await stripe.promotionCodes.list({ code: promoCode, active: true })
+            //             ).data[0]?.id,
+            //         },
+            //     ]
+            //     : [],
 
             return_url: `${process.env.FRONTEND_URL}/return?session_id={CHECKOUT_SESSION_ID}`,
             metadata: {
-                email: email.trim(), 
+                email: email.trim(),
             },
         });
 
