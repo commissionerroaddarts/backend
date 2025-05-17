@@ -1,6 +1,9 @@
 import Stripe from "stripe";
 import User from "../models/User.js";
 
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 export const stripeWebhookFn = async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -19,7 +22,11 @@ export const stripeWebhookFn = async (req, res) => {
             const email = session.metadata.email;
             const subscriptionId = session.subscription;
 
-            const user = await User.findOne({email: email});
+            await stripe.subscriptions.update(subscriptionId, {
+                cancel_at_period_end: true,
+            });
+
+            const user = await User.findOne({ email: email });
             if (user) {
                 user.stripeSubscriptionId = subscriptionId;
                 user.role = 'owner';
