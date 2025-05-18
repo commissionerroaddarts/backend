@@ -7,7 +7,7 @@ const createValidation = Joi.object({
     shortDis: Joi.string().required(),
     category: Joi.string().optional(),
     tags: Joi.array().items(Joi.string()).optional(),
-    bordtype: Joi.string().valid('Steel Tip', 'Plastic', 'Both').required(),
+    bordtype: Joi.string().valid('Steel Tip', 'Soft Tip', 'Both').required(),
     location: Joi.object({
         geotag: Joi.object({
             lat: Joi.number().optional(),
@@ -95,7 +95,7 @@ const updateBusinessValidation = Joi.object({
     shortDis: Joi.string().optional(),
     category: Joi.string().optional(),
     tags: Joi.array().items(Joi.string()).optional(),
-    bordtype: Joi.string().valid('Steel Tip', 'Plastic', 'Both').optional(),
+    bordtype: Joi.string().valid('Steel Tip', 'Soft Tip', 'Both').optional(),
 
     location: Joi.object({
         geotag: Joi.object({
