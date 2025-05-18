@@ -97,6 +97,10 @@ const businessSchema = new Schema({
   bordtype: {
     type: String,
     enum: ['Steel Tip', 'Soft Tip', 'Both']
+  },
+  promotion: {
+    title: { type: String },
+    description: { type: String },
   }
 }, { timestamps: true });
 
