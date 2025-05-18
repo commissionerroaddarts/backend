@@ -1,4 +1,5 @@
 import businessRoutes from './routes/businessRoutes.js';
+import promotionRoutes from './routes/promotionRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -33,9 +34,9 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = [
-    "http://localhost:3000", // Local frontend
-    process.env.FRONTEND_URL,  // Production frontend
-    process.env.FRONTEND_URL_WWW 
+    "http://localhost:3000", 
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_URL_WWW
 ];
 
 
@@ -68,6 +69,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contactus', contactRoutes);
 app.use('/api/subscription', subscriptionRoutes); 
 app.use('/api/reviews', reviewRoutes); 
+app.use('/api/promotion', promotionRoutes); 
 
 
 // =========================== Routes ===========================
