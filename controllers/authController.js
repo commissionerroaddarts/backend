@@ -94,6 +94,17 @@ export const googleAuth = async (req, res) => {
 
 export const getMe = async (req, res) => {
     try {
+        let permissions = {
+            "Basic Plan": {
+                maxListings: 1,
+            },
+            "Standard Plan": {
+                maxListings: 3,
+            },
+            "Premium Plan": {
+                maxListings: 5,
+            },
+        }
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -103,7 +114,7 @@ export const getMe = async (req, res) => {
             if (user.stripeSubscriptionId) {
                 const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
                 const productId = subscription.items.data[0].price.product;
-                const product = await stripe.products.retrieve(productId);  // Fetch the product details
+                const product = await stripe.products.retrieve(productId);
                 const currentPeriodEnd = subscription.billing_cycle_anchor + 30 * 24 * 60 * 60;
                 subscriptionData = {
                     plan: product.name,
@@ -111,12 +122,13 @@ export const getMe = async (req, res) => {
                     isAutoRenew: !subscription.cancel_at_period_end,
                     status: subscription.status,
                 }
+                permissions = (subscription.status === "active") ? permissions[product.name] : undefined;
             }
         } catch (err) {
             console.log(err.message);
         }
 
-        res.status(200).json({ data: { user, subscription: subscriptionData } });
+        res.status(200).json({ data: { user, subscription: subscriptionData, permissions } });
     } catch (err) {
         console.error(err);
         res.status(500).json({
