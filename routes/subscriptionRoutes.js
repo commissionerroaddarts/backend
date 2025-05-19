@@ -205,6 +205,46 @@ router.post('/checkout', async (req, res) => {
 
 
 
+router.post('/upgrade', async (req, res) => {
+    const { subscriptionId, priceId } = req.body;
+
+    if (!subscriptionId || !priceId) {
+        return res.status(400).json({ error: `Missing ${subscriptionId?? "subscriptionId"} , ${priceId?? "priceId"}` });
+    }
+
+    try {
+        // 1. Fetch the current subscription
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+        if (!subscription || subscription.status !== 'active') {
+            return res.status(404).json({ error: 'Active subscription not found' });
+        }
+
+        const subscriptionItemId = subscription.items.data[0].id;
+
+        // 2. Update the subscription to the new price
+        const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
+            items: [{
+                id: subscriptionItemId,
+                price: priceId,
+            }],
+            proration_behavior: 'create_prorations', // Optional: adjusts billing proportionally
+        });
+
+        res.json({
+            message: 'Subscription upgraded successfully',
+            subscription: updatedSubscription,
+        });
+    } catch (err) {
+        console.error('Upgrade error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
+
+
 // Fetch session status after payment
 router.get("/session_status", async (req, res) => {
     const sessionId = req.query.sessionId;
