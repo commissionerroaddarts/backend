@@ -363,8 +363,8 @@ export const uploadBusinessMedia = async (req, res) => {
     }
 
     business.media = {
-      images: uploadedImages,
-      logo: logoUrl,
+      images: uploadedImages.length ? uploadedImages : business.media.images,
+      logo: logoUrl || business.media.logo,
       // video: req.body.video || undefined,
     };
 
