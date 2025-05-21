@@ -353,6 +353,7 @@ export const uploadBusinessMedia = async (req, res) => {
         );
         uploadedImages.push(imageUrl);
       }
+      business.media.images = uploadedImages;
     }
 
     if (businessLogo && businessLogo.length > 0) {
@@ -360,13 +361,14 @@ export const uploadBusinessMedia = async (req, res) => {
         businessLogo[0].buffer,
         `business_logos/${businessId}`
       );
+      business.media.logo = logoUrl;
     }
 
-    business.media = {
-      images: uploadedImages.length ? uploadedImages : business.media.images,
-      logo: logoUrl || business.media.logo,
-      // video: req.body.video || undefined,
-    };
+    // business.media = {
+    //   images: uploadedImages.length ? uploadedImages : business.media.images,
+    //   logo: logoUrl || business.media.logo,
+    //   // video: req.body.video || undefined,
+    // };
 
     await business.save();
 
