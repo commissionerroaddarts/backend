@@ -46,10 +46,10 @@ export const signup = async (req, res) => {
 
 
 
-        res
-            .cookie('token', token, cookieOptions)
-            .cookie('refreshToken', refreshToken, cookieOptions)
-            .status(201).json({ message: "User registered successfully" });
+        res.cookie('token', token, cookieOptions);
+        res.cookie('refreshToken', refreshToken, cookieOptions)
+
+        res.status(201).json({ message: "User registered successfully" });
 
         sendMail(OTP(user.email, user.firstname, tokenForOtp))
     } catch (error) {
@@ -180,11 +180,10 @@ export const loginUser = async (req, res) => {
 
         const sanitizedUser = _.omit(user.toObject(), ['password', 'refreshToken']);
 
-        res
-            .cookie('token', token, cookieOptions)
-            .cookie('refreshToken', refreshToken, cookieOptions)
-            .status(200)
-            .json({
+        res.cookie('token', token, cookieOptions)
+        res.cookie('refreshToken', refreshToken, cookieOptions)
+
+        res.status(200).json({
                 message: "Login Successful",
                 data: sanitizedUser,
             });
