@@ -370,6 +370,7 @@ export const uploadBusinessMedia = async (req, res, next) => {
       business.media.logo = logoUrl;
     }
 
+    let coverUrl;
     if (businessLogo && businessLogo.length > 0) {
       coverUrl = await uploadToCloudinary(
         businessCover[0].buffer,
