@@ -18,7 +18,9 @@ const router = express.Router();
 
 const uploadMedia = upload.fields([
   { name: 'images', maxCount: 10 },  // for multiple images
-  { name: 'businessLogo', maxCount: 1 }  // for a single logo
+  { name: 'businessLogo', maxCount: 1 },  // for a single logo
+  { name: 'businessCover', maxCount: 1 },  
+  
 ]);
 
 // CRUD Routes
@@ -29,7 +31,7 @@ router.patch('/media/:id', authMiddleware,uploadMedia, uploadBusinessMedia);
 router.post('/', authMiddleware, uploadMedia, validateCreate, createBusiness);
 router.patch('/:id', authMiddleware, validateUpdate, updateBusiness);
 // router.patch('/upload-logo/:id', authMiddleware, upload.single('businessLogo'), uploadBusinessLogo);
-router.patch('/upload/:id', authMiddleware, upload.single('businessImg'), uploadBusinessImage);
+router.patch('/upload/:id', authMiddleware, uploadMedia, uploadBusinessImage);
 router.delete('/:id', authMiddleware, deleteBusiness);
 
 export default router;
