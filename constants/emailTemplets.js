@@ -90,7 +90,7 @@ export const ForgotPasswordEmail = (email, token) => {
             <h1>Password Reset Request</h1>
             <p>Hello,</p>
             <p>We received a request to reset the password associated with this email address (${email}).</p>
-            <p>If you made this request, click the link below to set a new password. This link will expire in 24 hours for your security.</p>
+            <p>If you made this request, click the link below to set a new password. This link will expire in 1 hour for your security.</p>
             <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}" style="display:inline-block;padding:10px 20px;background-color:#007BFF;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
             <p>If you didn't request a password reset, please ignore this email or let us know immediately.</p>
             <p>Best regards,</p>
