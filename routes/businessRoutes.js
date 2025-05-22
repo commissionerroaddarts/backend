@@ -29,7 +29,7 @@ router.patch('/media/:id', authMiddleware,uploadMedia, uploadBusinessMedia);
 router.post('/', authMiddleware, uploadMedia, validateCreate, createBusiness);
 router.patch('/:id', authMiddleware, validateUpdate, updateBusiness);
 // router.patch('/upload-logo/:id', authMiddleware, upload.single('businessLogo'), uploadBusinessLogo);
-// router.patch('/upload-image/:id', authMiddleware, upload.single('businessImg'), uploadBusinessImage);
+router.patch('/upload/:id', authMiddleware, upload.single('businessImg'), uploadBusinessImage);
 router.delete('/:id', authMiddleware, deleteBusiness);
 
 export default router;
