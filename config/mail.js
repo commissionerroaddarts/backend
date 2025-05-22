@@ -101,8 +101,9 @@ const sendMail = async (data) => {
     <body>
     
       <div class="container">
-        <img src="https://res.cloudinary.com/dfdlxyml9/image/upload/v1747412127/roaddarts_wwhyzt.jpg" alt="Road Dart">
-    `
+      <img src="https://res.cloudinary.com/dfdlxyml9/image/upload/v1747941134/road-darts-logo_exdydk.png" alt="Road Dart" style="max-width: 200px; height: auto; display: block; margin: 0 auto;"  >
+      `
+      // <img src="https://res.cloudinary.com/dfdlxyml9/image/upload/v1747412127/roaddarts_wwhyzt.jpg" alt="Road Dart">
   const body = `    <h1>{{heading}}</h1>
     
         <p>{{text}}</p>
