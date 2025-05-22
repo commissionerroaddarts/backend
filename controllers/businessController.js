@@ -370,14 +370,14 @@ export const uploadBusinessMedia = async (req, res, next) => {
       business.media.logo = logoUrl;
     }
 
-    let coverUrl;
-    if (businessLogo && businessLogo.length > 0) {
-      coverUrl = await uploadToCloudinary(
-        businessCover[0].buffer,
-        `business_cover/${businessId}`
-      );
-      business.media.cover = logoUrl;
-    }
+    // let coverUrl;
+    // if (businessLogo && businessLogo.length > 0) {
+    //   coverUrl = await uploadToCloudinary(
+    //     businessCover[0].buffer,
+    //     `business_cover/${businessId}`
+    //   );
+    //   business.media.cover = logoUrl;
+    // }
 
     // business.media = {
     //   images: uploadedImages.length ? uploadedImages : business.media.images,
