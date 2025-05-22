@@ -29,7 +29,7 @@ export const OTP = (email, firstname, token) => {
         subject: "Email Verification - Road Dart Stories",
         recipient: email,
         html: `
-            <h1>Your OTP for Verification</h1>
+            <h1>Email Verification</h1>
             <p>Dear ${firstname},</p>
             <p>Thank you for signing up with Road Dart Stories. To complete your verification, please click the link below:</p>
             <p>This link will expire in 24 hours.</p>
