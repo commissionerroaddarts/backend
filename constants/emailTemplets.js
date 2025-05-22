@@ -26,7 +26,7 @@ export const WELCOME = (email, firstname) => {
 
 export const OTP = (email, firstname, token) => {
     const data = {
-        subject: "OTP for Verification - Road Dart Stories",
+        subject: "Email Verification - Road Dart Stories",
         recipient: email,
         html: `
             <h1>Your OTP for Verification</h1>
@@ -77,6 +77,24 @@ export const THANKS_FOR_CONTACTING = ({ email, firstname }) => {
             <p>Thanks again — we’ll be in touch soon!</p>
             <p>Best regards,<br />The Road Darts Team</p>
             <a href="${process.env.FRONTEND_URL}" class="button">Visit Our Website</a>
+        `
+    };
+    return data;
+};
+
+export const ForgotPasswordEmail = (email, token) => {
+    const data = {
+        subject: "Password Reset Request - Road Darts",
+        recipient: email,
+        html: `
+            <h1>Password Reset Request</h1>
+            <p>Hello,</p>
+            <p>We received a request to reset the password associated with this email address (${email}).</p>
+            <p>If you made this request, click the link below to set a new password. This link will expire in 24 hours for your security.</p>
+            <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}" style="display:inline-block;padding:10px 20px;background-color:#007BFF;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
+            <p>If you didn't request a password reset, please ignore this email or let us know immediately.</p>
+            <p>Best regards,</p>
+            <p>The Road Dart Stories Team</p>
         `
     };
     return data;
