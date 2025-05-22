@@ -332,7 +332,7 @@ export const uploadBusinessImage = async (req, res) => {
 
 
 // Upload multiple business images
-export const uploadBusinessMedia = async (req, res) => {
+export const uploadBusinessMedia = async (req, res, next) => {
 
   try {
 
