@@ -8,7 +8,8 @@ import {
   bulkCreateBusinesses,
   uploadBusinessLogo,
   uploadBusinessImage,
-  uploadBusinessMedia
+  uploadBusinessMedia,
+  deleteBusinessMedia
 } from '../controllers/businessController.js';
 import upload from '../middlewares/uploadMiddleware.js';
 import { authMiddleware } from './../middlewares/authMiddleware.js';
@@ -33,5 +34,6 @@ router.patch('/:id', authMiddleware, validateUpdate, updateBusiness);
 // router.patch('/upload-logo/:id', authMiddleware, upload.single('businessLogo'), uploadBusinessLogo);
 router.patch('/upload/:id', authMiddleware, uploadMedia, uploadBusinessImage);
 router.delete('/:id', authMiddleware, deleteBusiness);
+router.delete('/media/:id', authMiddleware, deleteBusinessMedia);
 
 export default router;
