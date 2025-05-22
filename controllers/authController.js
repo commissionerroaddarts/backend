@@ -49,6 +49,7 @@ export const signup = async (req, res) => {
 
         res.cookie('token', token, cookieOptions);
         res.cookie('refreshToken', refreshToken, cookieOptions)
+
         sendMail(OTP(user.email, user.firstname, tokenForOtp))
 
         res.status(201).json({
@@ -65,6 +66,37 @@ export const signup = async (req, res) => {
         });
     }
 };
+
+
+
+export const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const tokenForOtp = generateAccessToken(user);
+
+        sendMail(OTP(user.email, user.firstname, tokenForOtp))
+
+        res.status(200).json({
+            message: "Verification Email Sent successfully",
+        });
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: {
+                message: error.message,
+            }
+        });
+    }
+};
+
+
 
 export const googleAuth = async (req, res) => {
     try {
