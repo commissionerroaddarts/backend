@@ -1,6 +1,6 @@
 // routes/authRoutes.js
 import express from 'express';
-import { signup, logout, loginUser, googleAuth, getMe, updatePassword, verifyEmail, verifyEmailTemp, verifyCaptcha } from '../controllers/authController.js';
+import { signup, logout, loginUser, googleAuth, getMe, updatePassword, verifyEmail, verifyEmailTemp, verifyCaptcha, forgotPassword, resetPassword } from '../controllers/authController.js';
 import passport from "passport";
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 
@@ -13,7 +13,10 @@ router.post('/change-password', authMiddleware, updatePassword);
 router.get('/verify', verifyEmail);
 router.get('/tempverify', authMiddleware, verifyEmailTemp);
 router.get('/me', authMiddleware, getMe);
-router.post('/verify-captcha', verifyCaptcha);
+router.get('/verify-captcha', verifyCaptcha);
+
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 // -------------------- Google OAuth --------------------
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] })); // Login, Redirect to Google for OAuth
