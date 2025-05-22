@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Business from '../models/Business.js';
-import { uploadToCloudinary } from './../services/cloudinary.js';
+import { deleteImage, uploadToCloudinary } from './../services/cloudinary.js';
 import _ from 'lodash';
 import Review from '../models/Review.js';
 
@@ -331,7 +331,6 @@ export const uploadBusinessImage = async (req, res) => {
 };
 
 
-
 // Upload multiple business images
 export const uploadBusinessMedia = async (req, res, next) => {
 
@@ -398,6 +397,69 @@ export const uploadBusinessMedia = async (req, res, next) => {
     next(error);
   }
 }
+
+
+
+
+export const deleteBusinessMedia = async (req, res, next) => {
+  try {
+    const businessId = req.params.id;
+    const { url } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ message: 'Media URL is required' });
+    }
+
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ message: 'Business not found' });
+    }
+
+    let updated = false;
+
+    if (business.media.images.includes(url)) {
+      business.media.images = business.media.images.filter(img => img !== url);
+      updated = true;
+    }
+
+    if (business.media.logo === url) {
+      business.media.logo = undefined;
+      updated = true;
+    }
+
+    if (business.media.cover === url) {
+      business.media.cover = undefined;
+      updated = true;
+    }
+
+    if (!updated) {
+      return res.status(404).json({ message: 'URL not found in business media' });
+    }
+
+    // Delete from Cloudinary using your function
+    const deleteResult = await deleteImage(url);
+
+    if (!deleteResult.success) {
+      // Optionally: log or send failure message, but still update DB
+      console.warn(deleteResult.message);
+    }
+
+    await business.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Media deleted successfully',
+      media: business.media,
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
 
 // Create or Update Promotion
 export const upsertPromotion = async (req, res) => {
