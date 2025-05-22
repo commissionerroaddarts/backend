@@ -49,13 +49,13 @@ export const signup = async (req, res) => {
 
         res.cookie('token', token, cookieOptions);
         res.cookie('refreshToken', refreshToken, cookieOptions)
+        sendMail(OTP(user.email, user.firstname, tokenForOtp))
 
         res.status(201).json({
             message: "User registered successfully",
             data: sanitizedUser,
         });
 
-        sendMail(OTP(user.email, user.firstname, tokenForOtp))
     } catch (error) {
         console.log(error.message);
         res.status(500).json({
