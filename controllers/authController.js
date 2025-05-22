@@ -314,7 +314,7 @@ export const forgotPassword = async (req, res) => {
             return res.status(404).json({ message: "User not found with this email." });
         }
 
-        const token = generateAccessToken(user)
+        const token = generateAccessToken(user, "1h")
 
         // Send reset password email
         sendMail(ForgotPasswordEmail(user.email, token));
