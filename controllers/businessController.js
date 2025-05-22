@@ -364,6 +364,15 @@ export const uploadBusinessMedia = async (req, res) => {
       business.media.logo = logoUrl;
     }
 
+    
+    if (businessLogo && businessLogo.length > 0) {
+      coverUrl = await uploadToCloudinary(
+        businessLogo[0].buffer,
+        `business_cover/${businessId}`
+      );
+      business.media.cover = logoUrl;
+    }
+
     // business.media = {
     //   images: uploadedImages.length ? uploadedImages : business.media.images,
     //   logo: logoUrl || business.media.logo,
