@@ -10,7 +10,8 @@ const businessSchema = new Schema({
   media: {
     images: { type: [String], default: undefined },
     video: { type: String, default: undefined },
-    logo: { type: String, default: undefined }
+    logo: { type: String, default: undefined },
+    cover: { type: String, default: undefined }
   },
   shortDis: { type: String, required: true },
   location: {
