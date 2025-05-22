@@ -290,9 +290,9 @@ export const uploadBusinessLogo = async (req, res) => {
 // Upload a single business image
 export const uploadBusinessImage = async (req, res) => {
   try {
-    const file = req.file;
+    const files = req.files?.images;
 
-    if (!file) {
+    if (!files || files.length === 0) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
@@ -307,11 +307,17 @@ export const uploadBusinessImage = async (req, res) => {
     //   return res.status(403).json({ message: 'Unauthorized' });
     // }
 
-    const timestamp = Date.now();
-    const public_id = `business_images/image_${businessId}_${timestamp}`;
-    const imageUrl = await uploadToCloudinary(file.buffer, public_id);
+    const uploadedImageUrls = [];
 
-    business.media.images.push(imageUrl);
+    for (const file of files) {
+      const timestamp = Date.now();
+      const public_id = `business_images/image_${businessId}_${timestamp}`;
+      const imageUrl = await uploadToCloudinary(file.buffer, public_id);
+      uploadedImageUrls.push(imageUrl);
+    }
+
+    // Add all new image URLs to media.images array
+    business.media.images.push(...uploadedImageUrls);
     await business.save();
 
     res.status(200).json({
@@ -364,7 +370,6 @@ export const uploadBusinessMedia = async (req, res) => {
       business.media.logo = logoUrl;
     }
 
-    
     if (businessLogo && businessLogo.length > 0) {
       coverUrl = await uploadToCloudinary(
         businessCover[0].buffer,
