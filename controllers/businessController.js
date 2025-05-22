@@ -331,6 +331,7 @@ export const uploadBusinessImage = async (req, res) => {
 };
 
 
+
 // Upload multiple business images
 export const uploadBusinessMedia = async (req, res, next) => {
 
@@ -344,7 +345,7 @@ export const uploadBusinessMedia = async (req, res, next) => {
       return res.status(404).json({ message: 'Business not found' });
     }
 
-    if (!images && !businessLogo) {
+    if (!images && !businessLogo && !businessCover) {
       return res.status(400).json({ message: 'No files uploaded' });
     }
 
@@ -369,15 +370,15 @@ export const uploadBusinessMedia = async (req, res, next) => {
       );
       business.media.logo = logoUrl;
     }
-
-    // let coverUrl;
-    // if (businessLogo && businessLogo.length > 0) {
-    //   coverUrl = await uploadToCloudinary(
-    //     businessCover[0].buffer,
-    //     `business_cover/${businessId}`
-    //   );
-    //   business.media.cover = logoUrl;
-    // }
+    
+    let coverUrl;
+    if (businessCover && businessCover.length > 0) {
+      coverUrl = await uploadToCloudinary(
+        businessCover[0].buffer,
+        `business_cover/${businessId}`
+      );
+      business.media.cover = coverUrl;
+    }
 
     // business.media = {
     //   images: uploadedImages.length ? uploadedImages : business.media.images,
@@ -397,7 +398,6 @@ export const uploadBusinessMedia = async (req, res, next) => {
     next(error);
   }
 }
-
 
 // Create or Update Promotion
 export const upsertPromotion = async (req, res) => {
