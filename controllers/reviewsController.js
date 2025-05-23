@@ -149,7 +149,7 @@ export const createReview = async (req, res, next) => {
 
 export const getAllReviews = async (req, res, next) => {
     try {
-        let { page = 1, limit = 10, sort, business, user } = req.query;
+        let { page = 1, limit = 10, sort, business, user, search } = req.query;
         page = parseInt(page);
         limit = parseInt(limit);
         const skip = (page - 1) * limit;
@@ -194,12 +194,83 @@ export const getAllReviews = async (req, res, next) => {
             totalReviews = await Review.countDocuments(filter);
         }
 
-        const reviews = await Review.find(filter)
-            .populate('user', 'username email profileImg')
-            .populate('business', 'name media.logo')
-            .sort(sortOption)
-            .skip(skip)
-            .limit(limit);
+        const matchStage = {
+            $match: {}
+        };
+
+        if (user) {
+            matchStage.$match.user = new mongoose.Types.ObjectId(user);
+        }
+
+        if (search) {
+            matchStage.$match['businessDoc.name'] = {
+                $regex: search,
+                $options: 'i'
+            };
+        }
+
+        const reviews = await Review.aggregate([
+            // Join user
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'userDoc'
+                }
+            },
+            { $unwind: '$userDoc' },
+
+            // Join business
+            {
+                $lookup: {
+                    from: 'businesses',
+                    localField: 'business',
+                    foreignField: '_id',
+                    as: 'businessDoc'
+                }
+            },
+            { $unwind: '$businessDoc' },
+
+            // Add filter
+            matchStage,
+
+            // Sort
+            {
+                $sort: sort === 'rating'
+                    ? { 'ratings.overallRating': -1, createdAt: -1 }
+                    : { createdAt: -1 }
+            },
+
+            // Pagination
+            { $skip: skip },
+            { $limit: limit },
+
+            // Project only needed fields
+            {
+                $project: {
+                    _id: 1,
+                    text: 1,
+                    img: 1,
+                    createdAt: 1,
+                    ratings: 1,
+                    'user._id': '$userDoc._id',
+                    'user.username': '$userDoc.username',
+                    'user.email': '$userDoc.email',
+                    'user.profileImg': '$userDoc.profileImg',
+                    'business._id': '$businessDoc._id',
+                    'business.name': '$businessDoc.name',
+                    'business.media.logo': '$businessDoc.media.logo',
+                }
+            }
+        ]);
+
+        // const reviews = await Review.find(filter)
+        //     .populate('user', 'username email profileImg')
+        //     .populate('business', 'name media.logo')
+        //     .sort(sortOption)
+        //     .skip(skip)
+        //     .limit(limit);
 
         let submittedReview;
         if (req.user && req.user.id, business, !user) {
