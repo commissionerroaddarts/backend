@@ -304,9 +304,9 @@ export const updatePassword = async (req, res) => {
 export const logout = async (req, res) => {
     // For token-based auth, logout is handled on frontend (token removal)
     await User.findByIdAndUpdate(req.user.id, { $unset: { refreshToken: "" } });
-    // Clear cookies
-    res.clearCookie('token', cookieOptions);
-    res.clearCookie('refreshToken', cookieOptions);
+    // // Clear cookies
+    // res.clearCookie('token', cookieOptions);
+    // res.clearCookie('refreshToken', cookieOptions);
     res.status(200).json({ message: "Logged out successfully" });
 };
 
