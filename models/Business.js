@@ -80,7 +80,6 @@ const businessSchema = new Schema({
   },
   agelimit: { type: Number },
   category: { type: String },
-  phone: { type: Number },
   tags: [String],
   status: {
     type: String,
