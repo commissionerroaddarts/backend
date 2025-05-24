@@ -147,6 +147,7 @@ export const createReview = async (req, res, next) => {
     }
 };
 
+
 export const getAllReviews = async (req, res, next) => {
     try {
         let { page = 1, limit = 10, sort, business, user, search } = req.query;
@@ -298,6 +299,7 @@ export const getAllReviews = async (req, res, next) => {
         next(error);
     }
 };
+
 
 export const updateReview = async (req, res, next) => {
     try {
