@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import subscriptionRoutes from './routes/subscriptionRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 import express from 'express';
 import dotenv from 'dotenv';
@@ -70,6 +71,7 @@ app.use('/api/contactus', contactRoutes);
 app.use('/api/subscription', subscriptionRoutes); 
 app.use('/api/reviews', reviewRoutes); 
 app.use('/api/promotion', promotionRoutes); 
+app.use('/api/notifications', notificationRoutes); 
 
 
 // =========================== Routes ===========================
