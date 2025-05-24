@@ -23,6 +23,25 @@ export const WELCOME = (email, firstname) => {
     return data
 };
 
+export const REVIEW_NOTIFICATION = (email, businessName, link) => {
+    return {
+        subject: `New Review on Your Business - Road Dart Stories`,
+        recipient: email,
+        html: `
+        <h1>New Review Added</h1>
+        <p>Hi,</p>
+        <p>You just received a new review on your business <strong>${businessName}</strong>.</p>
+        <p>Click the link below to check it out.</p>
+        
+            <a href="${link}" class="button">Get Started</a>
+
+        <p>If you have any questions, feel free to contact our support team.</p>
+        <p>Best regards,<br/>The Road Darts Team</p>
+    `
+    };
+};
+
+
 
 export const OTP = (email, firstname, token) => {
     const data = {
