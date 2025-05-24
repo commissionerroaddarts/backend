@@ -32,7 +32,7 @@ const createEventValidation = Joi.object({
 
     totalTickets: Joi.number().optional(),
 
-    ticketLink: Joi.string().uri().optional(),
+    ticketLink: Joi.string().optional(),
 
     booking: Joi.object({
         start: Joi.string().optional(),
@@ -91,7 +91,7 @@ const updateEventValidation = Joi.object({
 
     totalTickets: Joi.number().optional(),
 
-    ticketLink: Joi.string().uri().optional(),
+    ticketLink: Joi.string().optional(),
 
     booking: Joi.object({
         start: Joi.string().optional(),
