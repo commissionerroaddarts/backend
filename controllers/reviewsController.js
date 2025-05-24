@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import Review from "../models/Review.js";
 import Business from './../models/Business.js';
+import { createNotification } from "../utils/createNotification.js";
+import sendMail from './../config/mail.js';
+import { REVIEW_NOTIFICATION } from "../constants/emailTemplets.js";
 
 
 
@@ -94,7 +97,7 @@ export const createReview = async (req, res, next) => {
             text,
         } = req.body;
 
-        const businessExists = await Business.findById(business);
+        const businessExists = await Business.findById(business).populate('userId', 'email firstname');
         if (!businessExists) {
             return res.status(404).json({
                 success: false,
@@ -126,11 +129,24 @@ export const createReview = async (req, res, next) => {
 
         const review = await Review.create(reviewData);
 
+
+        const notificationData = {
+            userId: businessExists.userId,
+            title: `${req.user.username} added review on ${businessExists.name}.`,
+            link: `${process.env.FRONTEND_URL}/establishments/${businessExists.id}`
+        }
+
+        createNotification(notificationData)
+
+        sendMail(REVIEW_NOTIFICATION(businessExists.userId.email ,businessExists.name , notificationData.link))
+
         res.status(201).json({
             success: true,
             message: 'Review created successfully',
             data: review
         });
+
+
     } catch (error) {
 
 
@@ -146,7 +162,6 @@ export const createReview = async (req, res, next) => {
         next(error);
     }
 };
-
 
 export const getAllReviews = async (req, res, next) => {
     try {
@@ -299,7 +314,6 @@ export const getAllReviews = async (req, res, next) => {
         next(error);
     }
 };
-
 
 export const updateReview = async (req, res, next) => {
     try {
