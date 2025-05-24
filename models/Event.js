@@ -30,7 +30,6 @@ const eventSchema = new Schema({
     totalTickets: { type: Number },
     ticketLink: {
         type: String,
-        match: /^https?:\/\/.+/
     },
     price: { type: Number },
     booking: {
