@@ -16,10 +16,10 @@ const userSchema = new Schema({
         required: [true, 'Email is required'],
         unique: [true, 'Email already exists'],
         lowercase: true,
-        validate: {
-            validator: v => /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v),
-            message: "Invalid Email"
-        }
+        // validate: {
+        //     validator: v => /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v),
+        //     message: "Invalid Email"
+        // }
     },
     password: {
         type: String,
@@ -28,10 +28,10 @@ const userSchema = new Schema({
     username: { type: String, unique: [true, "Username already exists"] },
     phone: {
         type: String,
-        validate: {
-            validator: v => /^\+?[1-9]\d{1,14}$/.test(v),
-            message: "Invalid phone number format"
-        }
+        // validate: {
+        //     validator: v => /^\+?[1-9]\d{1,14}$/.test(v),
+        //     message: "Invalid phone number format"
+        // }
     },
     address: {
         state: String,
