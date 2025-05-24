@@ -20,7 +20,7 @@ const createReviewSchema = Joi.object({
     lightingConditions: Joi.number().min(1).max(5).required(),
     spaceAllocated: Joi.number().min(1).max(5).required(),
     gamingAmbience: Joi.number().min(1).max(5).required(),
-    img: Joi.string().uri().optional().messages({
+    img: Joi.string().optional().messages({
         'string.uri': 'Invalid URL format for img'
     }),
     text: Joi.string().required()
@@ -34,7 +34,7 @@ const updateReviewSchema = Joi.object({
     lightingConditions: Joi.number().min(1).max(5).optional(),
     spaceAllocated: Joi.number().min(1).max(5).optional(),
     gamingAmbience: Joi.number().min(1).max(5).optional(),
-    img: Joi.string().uri().optional().messages({
+    img: Joi.string().optional().messages({
         'string.uri': 'Invalid URL format for img'
     }),
     text: Joi.string().optional()
