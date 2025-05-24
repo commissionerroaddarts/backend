@@ -202,6 +202,10 @@ export const getAllReviews = async (req, res, next) => {
             matchStage.$match.user = new mongoose.Types.ObjectId(user);
         }
 
+        if (business) {
+            matchStage.$match.business = new mongoose.Types.ObjectId(business);
+        }
+
         if (search) {
             matchStage.$match['businessDoc.name'] = {
                 $regex: search,
