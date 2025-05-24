@@ -26,10 +26,10 @@ const reviewSchema = new mongoose.Schema({
   },
   img: {
     type: String,
-    validate: {
-      validator: validateURL,
-      message: 'Invalid URL format for img'
-    }
+    // validate: {
+    //   validator: validateURL,
+    //   message: 'Invalid URL format for img'
+    // }
   },
   text: {
     type: String,
@@ -38,17 +38,6 @@ const reviewSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Pre-save middleware to calculate the overallRating
-// reviewSchema.pre('save', function (next) {
-//   const { boardCondition, throwingLaneConditions, lightingConditions, spaceAllocated, gamingAmbience } = this.ratings;
-
-//   const sum = boardCondition + throwingLaneConditions + lightingConditions + spaceAllocated + gamingAmbience;
-//   this.ratings.overallRating = Math.round((sum / 5) * 10) / 10; // Round to 1 decimal
-
-//   next();
-// });
-
 
 // Optional: Ensure one review per user per business
 reviewSchema.index({ user: 1, business: 1 }, { unique: true });
