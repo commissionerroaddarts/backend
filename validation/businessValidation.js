@@ -68,8 +68,8 @@ const createValidation = Joi.object({
         })
     ).optional(),
 
-    website: Joi.string().uri().optional(),
-    phone: Joi.string().pattern(/^[0-9]{10,15}$/).optional(),
+    website: Joi.string().optional(),
+    phone: Joi.string().optional(),
 
     price: Joi.object({
         category: Joi.string().valid('$', '$$', '$$$', '$$$$').optional(),
@@ -115,8 +115,8 @@ const updateBusinessValidation = Joi.object({
     // }).optional(),
 
 
-    website: Joi.string().uri().optional(),
-    phone: Joi.string().pattern(/^[0-9]{10,15}$/).optional(),
+    website: Joi.string().optional(),
+    phone: Joi.string().optional(),
 
     timings: Joi.object({
         mon: Joi.object({
