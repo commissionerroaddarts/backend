@@ -138,7 +138,7 @@ export const getMe = async (req, res) => {
                 maxListings: 3,
             },
             "Premium Plan": {
-                maxListings: 5,
+                maxListings: 9,
             },
         }
         const user = await User.findById(req.user.id).select('-password -__v');
