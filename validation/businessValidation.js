@@ -13,6 +13,7 @@ const createValidation = Joi.object({
             lat: Joi.number().optional(),
             lng: Joi.number().optional()
         }).optional(),
+        address: Joi.string().optional(),
         state: Joi.string().optional(),
         city: Joi.string().optional(),
         country: Joi.string().optional(),
@@ -102,6 +103,7 @@ const updateBusinessValidation = Joi.object({
             lat: Joi.number().optional(),
             lng: Joi.number().optional()
         }).optional(),
+        address: Joi.string().optional(),
         state: Joi.string().optional(),
         city: Joi.string().optional(),
         country: Joi.string().optional(),
