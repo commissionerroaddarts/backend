@@ -19,6 +19,7 @@ const businessSchema = new Schema({
       lat: Number,
       lng: Number
     },
+    address: String,
     state: String,
     city: String,
     country: String,
