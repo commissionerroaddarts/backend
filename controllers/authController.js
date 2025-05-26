@@ -130,7 +130,7 @@ export const googleAuth = async (req, res) => {
 
 export const getMe = async (req, res) => {
     try {
-        let permissions = {
+        const permissionsData = {
             "Basic Plan": {
                 maxListings: 1,
             },
@@ -141,6 +141,8 @@ export const getMe = async (req, res) => {
                 maxListings: 9,
             },
         }
+        let permissions = undefined; 
+        
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
             return res.status(404).json({ message: "User not found" });
