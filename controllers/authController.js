@@ -160,7 +160,7 @@ export const getMe = async (req, res) => {
                     isAutoRenew: !subscription.cancel_at_period_end,
                     status: subscription.status,
                 }
-                permissions = (subscription.status === "active") ? permissions[product.name] : undefined;
+                permissions = (subscription.status === "active") ? permissionsData[product.name] : undefined;
             }
         } catch (err) {
             console.log(err.message);
