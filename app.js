@@ -18,6 +18,7 @@ import "./config/passport.js";
 import { stripeWebhookFn } from './config/stripe.js';
 import bodyParser from 'body-parser';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { globalRateLimiter } from './middlewares/rateLimiters.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ dotenv.config();
 // express setup
 const app = express();
 
+app.use(globalRateLimiter);
 
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), stripeWebhookFn );
 
