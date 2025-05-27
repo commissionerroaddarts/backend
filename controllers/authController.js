@@ -4,7 +4,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/helper.js';
 import { cookieOptions } from '../constants/cookieOptions.js';
 import _ from 'lodash';
 import sendMail from '../config/mail.js';
-import { ForgotPasswordEmail, OTP, WELCOME } from '../constants/emailTemplets.js';
+import { ForgotPasswordEmail, NEW_USER_SIGNUP, OTP, WELCOME } from '../constants/emailTemplets.js';
 import Stripe from 'stripe';
 import jwt from 'jsonwebtoken';
 import { getStripeSubscriptionIdByEmail } from '../utils/stripe.js';
@@ -51,6 +51,7 @@ export const signup = async (req, res) => {
         res.cookie('refreshToken', refreshToken, cookieOptions)
 
         sendMail(OTP(user.email, user.firstname, tokenForOtp))
+        sendMail(NEW_USER_SIGNUP(user.email, user.firstname))
 
         res.status(201).json({
             message: "User registered successfully",
