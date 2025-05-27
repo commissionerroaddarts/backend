@@ -1,20 +1,15 @@
 export const WELCOME = (email, firstname) => {
     const data = {
-        subject: "Welcome to Road Dart Stories",
+        subject: "Welcome to Road Darts",
         recipient: email,
         html: `
-            <h1>Welcome to Road Dart Stories!</h1>
+            <h1>Welcome to Road Darts!</h1>
             <p>Dear ${firstname},</p>
-            <p>We're thrilled to have you join the Road Darts community — where opportunity meets innovation. Our platform is designed to help professionals like you connect, collaborate, and grow with confidence.</p>
-            <p>Whether you're here to discover high-quality listings, build powerful partnerships, or expand your business reach, you're in the right place.</p>
-            <p>Here's how you can get started:</p>
-            <ul>
-                <li>Complete your profile to showcase your expertise.</li>
-                <li>Explore top-tier listings and services.</li>
-                <li>Engage with other professionals and businesses.</li>
-            </ul>
-            <p>If you need support or have any questions, our team is always here to help.</p>
-            <p>Welcome aboard — let's redefine what's possible together.</p>
+            <p>We're thrilled to welcome you to the Road Darts family!</p>
+            <p>Partnering with us is more than just a listing—it's a shared journey to drive foot traffic, boost your revenue, and build a thriving partnership where we succeed together.</p>
+            <p><a href="https://roaddarts.com" target="_blank">RoadDarts.com</a> is also a growing social hub for darters—connecting players, sharing tips, and promoting venues just like yours. By joining, you're not just getting exposure—you're becoming part of a vibrant community of dart enthusiasts across the country.</p>
+            <p>Whether you need help promoting upcoming events or growing your local following, we're here to support you every step of the way.</p>
+            <p>Thank you for trusting us—let's make something amazing happen!</p>
             <p>Best regards,</p>
             <p>The Road Darts Team</p>
             <a href="${process.env.FRONTEND_URL}" class="button">Get Started</a>
@@ -22,6 +17,23 @@ export const WELCOME = (email, firstname) => {
     }
     return data
 };
+
+export const NEW_USER_SIGNUP = (email, firstname) => {
+    const data = {
+        subject: "New User Signup on Road Darts",
+        recipient: process.env.ADMIN_EMAIL, 
+        html: `
+            <h1>New User Registered</h1>
+            <p>A new user has just signed up on <a href="https://roaddarts.com" target="_blank">RoadDarts.com</a>.</p>
+            <p><strong>First Name:</strong> ${firstname}</p>
+            <p><strong>Email Address:</strong> ${email}</p>
+            <p>— Road Darts Notification System</p>
+        `
+    };
+    return data;
+};
+
+
 
 export const REVIEW_NOTIFICATION = (email, businessName, link) => {
     return {
@@ -64,7 +76,7 @@ export const OTP = (email, firstname, token) => {
 export const CONTACT_US = ({ firstname, lastname, email, phone, message }) => {
     const data = {
         subject: `New Contact Form Submission from ${firstname} ${lastname}`,
-        recipient: email,
+        recipient: process.env.ADMIN_EMAIL, 
         html: `
             <h2>New Contact Form Submission</h2>
             <p>You have received a new message from the contact form on Road Dart Stories.</p>
