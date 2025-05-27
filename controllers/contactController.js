@@ -11,7 +11,7 @@ export const createContact = async (req, res) => {
     await newContact.save();
 
     sendMail(THANKS_FOR_CONTACTING({ firstname, email }));
-    sendMail(CONTACT_US({ firstname, lastname, email: "commissioner@roaddarts.com", phone, message }));
+    sendMail(CONTACT_US({ firstname, lastname, email, phone, message }));
     res.status(201).json({ message: 'Contact message submitted successfully.' });
   } catch (err) {
     res.status(500).json({ message: err.message });
