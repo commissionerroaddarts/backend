@@ -182,6 +182,11 @@ const updateBusinessValidation = Joi.object({
 
     status: Joi.string().valid('Active', 'Closed Down', 'Coming Soon', 'Under Remodel').optional(),
 
+    promotion: Joi.object({
+        title: Joi.string().optional(),
+        description: Joi.string().optional()
+    }).optional(),
+
     validation: Joi.object({
         date: Joi.date().optional(),
         status: Joi.string().valid('Accredited', 'Validated', 'Not Validated').optional()
