@@ -21,13 +21,13 @@ export const WELCOME = (email, firstname) => {
 export const NEW_USER_SIGNUP = (email, firstname) => {
     const data = {
         subject: "New User Signup on Road Darts",
-        recipient: process.env.ADMIN_EMAIL, 
+        recipient: process.env.ADMIN_EMAIL,
         html: `
             <h1>New User Registered</h1>
             <p>A new user has just signed up on <a href="https://roaddarts.com" target="_blank">RoadDarts.com</a>.</p>
             <p><strong>First Name:</strong> ${firstname}</p>
             <p><strong>Email Address:</strong> ${email}</p>
-            <p>— Road Darts Notification System</p>
+            <p>Road Darts Notification System</p>
         `
     };
     return data;
@@ -44,9 +44,7 @@ export const REVIEW_NOTIFICATION = (email, businessName, link) => {
         <p>Hi,</p>
         <p>You just received a new review on your business <strong>${businessName}</strong>.</p>
         <p>Click the link below to check it out.</p>
-        
-            <a href="${link}" class="button">Get Started</a>
-
+        <a href="${link}" class="button">View Review</a>
         <p>If you have any questions, feel free to contact our support team.</p>
         <p>Best regards,<br/>The Road Darts Team</p>
     `
@@ -76,18 +74,17 @@ export const OTP = (email, firstname, token) => {
 export const CONTACT_US = ({ firstname, lastname, email, phone, message }) => {
     const data = {
         subject: `New Contact Form Submission from ${firstname} ${lastname}`,
-        recipient: process.env.ADMIN_EMAIL, 
+        recipient: process.env.ADMIN_EMAIL,
         html: `
-            <h2>New Contact Form Submission</h2>
+            <h1>New Contact Form Submission</h1>
             <p>You have received a new message from the contact form on Road Dart Stories.</p>
             <hr />
+            <p><strong>Contact Details</strong></p>
             <p><strong>Full Name:</strong> ${firstname} ${lastname}</p>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>Phone:</strong> ${phone}</p>
-            <p><strong>Message:</strong></p>
-            <p style="white-space: pre-line;">${message}</p>
+            <p><strong>Message:</strong> ${message}</p>
             <hr />
-            <p>Please respond to this inquiry as soon as possible.</p>
             <p>Best regards,<br />Road Dart Stories Notification System</p>
         `
     };
@@ -122,7 +119,7 @@ export const ForgotPasswordEmail = (email, token) => {
             <p>Hello,</p>
             <p>We received a request to reset the password associated with this email address (${email}).</p>
             <p>If you made this request, click the link below to set a new password. This link will expire in 1 hour for your security.</p>
-            <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}" style="display:inline-block;padding:10px 20px;background-color:#007BFF;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
+            <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}" class="button">Reset Password</a>
             <p>If you didn't request a password reset, please ignore this email or let us know immediately.</p>
             <p>Best regards,</p>
             <p>The Road Dart Stories Team</p>
@@ -130,3 +127,7 @@ export const ForgotPasswordEmail = (email, token) => {
     };
     return data;
 };
+
+
+
+
