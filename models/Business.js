@@ -102,7 +102,22 @@ const businessSchema = new Schema({
   promotion: {
     title: { type: String },
     description: { type: String },
+  },
+
+  amenities: {
+    wheelchairAccessible: { type: Boolean, default: undefined },
+    validatedParking: { type: Boolean, default: undefined },
+    smokingOutsideOnly: { type: Boolean, default: undefined },
+    outdoorSeating: { type: Boolean, default: undefined },
+    heatedOutdoorSeating: { type: Boolean, default: undefined },
+    bikeParking: { type: Boolean, default: undefined },
+    acceptsCreditCards: { type: Boolean, default: undefined },
+    freeWiFi: { type: Boolean, default: undefined },
+    tv: { type: Boolean, default: undefined },
+    happyHourSpecials: { type: Boolean, default: undefined },
+    coveredOutdoorSeating: { type: Boolean, default: undefined }
   }
+
 }, { timestamps: true });
 
 const Business = model('Business', businessSchema);
