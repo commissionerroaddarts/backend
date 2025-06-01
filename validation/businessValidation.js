@@ -78,7 +78,7 @@ const createValidation = Joi.object({
         max: Joi.number().optional()
     }).optional(),
 
-    agelimit: Joi.number().optional(),
+    agelimit: Joi.number().allow(null).optional(),
 
     status: Joi.string().valid('Active', 'Closed Down', 'Coming Soon', 'Under Remodel').optional(),
 
@@ -192,7 +192,7 @@ const updateBusinessValidation = Joi.object({
         max: Joi.number().optional()
     }).optional(),
 
-    agelimit: Joi.number().optional(),
+    agelimit: Joi.number().allow(null).optional(),
 
     status: Joi.string().valid('Active', 'Closed Down', 'Coming Soon', 'Under Remodel').optional(),
 
