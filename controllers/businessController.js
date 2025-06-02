@@ -3,6 +3,9 @@ import Business from '../models/Business.js';
 import { deleteImage, uploadToCloudinary } from './../services/cloudinary.js';
 import _ from 'lodash';
 import Review from '../models/Review.js';
+import { CONTACT_BUSINESS } from '../constants/emailTemplets.js';
+import { createNotification } from './../utils/createNotification.js';
+import sendMail from './../config/mail.js';
 
 export const createBusiness = async (req, res) => {
   try {
@@ -369,7 +372,7 @@ export const uploadBusinessMedia = async (req, res, next) => {
       );
       business.media.logo = logoUrl;
     }
-    
+
     let coverUrl;
     if (businessCover && businessCover.length > 0) {
       coverUrl = await uploadToCloudinary(
@@ -501,5 +504,45 @@ export const deletePromotion = async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+};
+
+
+
+export const sendMessageToOwner = async (req, res) => {
+  try {
+    const businessId = req.params.id;
+
+    const { message, email, firstname } = req.body;
+
+    const businessExists = await Business.findById(businessId).populate('userId', 'email username');
+    if (!businessExists) {
+      return res.status(404).json({ message: 'Business not found' });
+    }
+
+    const notificationData = {
+      userId: businessExists.userId._id,
+      title: `${firstname} sent a message regarding ${businessExists.name}`,
+      link: `${process.env.FRONTEND_URL}/establishments/${businessExists._id}`
+    };
+
+    await createNotification(notificationData);
+
+    await sendMail(
+      CONTACT_BUSINESS(
+        businessExists.userId.email,
+        businessExists.name,
+        notificationData.link,
+        { message, email, firstname }
+      )
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification and email sent to business owner',
+    });
+  } catch (error) {
+    console.error('Error sending message to owner:', error);
+    res.status(500).json({ message: 'Failed to notify business owner', error: error.message });
   }
 };
