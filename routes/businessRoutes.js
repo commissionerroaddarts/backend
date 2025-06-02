@@ -9,7 +9,8 @@ import {
   uploadBusinessLogo,
   uploadBusinessImage,
   uploadBusinessMedia,
-  deleteBusinessMedia
+  deleteBusinessMedia,
+  sendMessageToOwner
 } from '../controllers/businessController.js';
 import upload from '../middlewares/uploadMiddleware.js';
 import { authMiddleware } from './../middlewares/authMiddleware.js';
@@ -35,5 +36,8 @@ router.patch('/:id', authMiddleware, validateUpdate, updateBusiness);
 router.patch('/upload/:id', authMiddleware, uploadMedia, uploadBusinessImage);
 router.delete('/:id', authMiddleware, deleteBusiness);
 router.delete('/media/:id', authMiddleware, deleteBusinessMedia);
+
+router.post('/contact/:id', sendMessageToOwner);
+
 
 export default router;
