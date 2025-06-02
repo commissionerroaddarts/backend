@@ -129,5 +129,29 @@ export const ForgotPasswordEmail = (email, token) => {
 };
 
 
+export const CONTACT_BUSINESS = (email, businessName, link, { message, email: senderEmail, firstname }) => {
+    return {
+        subject: `New Contact Request for Your Business - Road Dart Stories`,
+        recipient: email,
+        html: `
+            <h1>You've Received a New Contact Request</h1>
+            <p>Hi,</p>
+            <p>A visitor named <strong>${firstname}</strong> has contacted your business <strong>${businessName}</strong> through Road Dart Stories.</p>
+
+            <hr />
+            <p><strong>Sender Name:</strong> ${firstname}</p>
+            <p><strong>Sender Email:</strong> ${senderEmail}</p>
+            <p><strong>Message:</strong></p>
+            <p>${message}</p>
+            <hr />
+
+            
+            <p>If you have any questions or need help, feel free to contact our support team.</p>
+            <p>Best regards,<br />The Road Darts Team</p>
+            `
+            // <p>Click the button below to view more details or respond directly:</p>
+            // <a href="${link}" class="button" target="_blank">View Message</a>
+    };
+};
 
 
