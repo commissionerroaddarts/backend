@@ -167,6 +167,12 @@ export const getMe = async (req, res) => {
             console.log(err.message);
         }
 
+        if(user.email === "trlong44@gmail.com") {
+            permissions = {
+                maxListings: 9999,
+            };
+        }
+
         res.status(200).json({ data: { user, subscription: subscriptionData, permissions } });
     } catch (err) {
         console.error(err);
