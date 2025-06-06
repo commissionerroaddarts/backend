@@ -2,7 +2,7 @@ import Joi from 'joi';
 import validate from "../middlewares/validationMiddleware.js";
 
 const createValidation = Joi.object({
-    name: Joi.string().required(),
+    name: Joi.string().trim().required(),
     tagline: Joi.string().required(),
     shortDis: Joi.string().required(),
     category: Joi.string().optional(),
@@ -110,7 +110,7 @@ const createValidation = Joi.object({
 
 
 const updateBusinessValidation = Joi.object({
-    name: Joi.string().optional(),
+    name: Joi.string().trim().optional(),
     tagline: Joi.string().optional(),
     shortDis: Joi.string().optional(),
     category: Joi.string().optional(),
