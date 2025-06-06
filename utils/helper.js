@@ -5,12 +5,12 @@ export function cleanFields(fieldsString = '') {
 }
 
 export function validateURL(v) {
-  if (!v) return true; 
+  if (!v) return true;
   try {
-      new URL(v);
-      return true;
+    new URL(v);
+    return true;
   } catch (err) {
-      return false;
+    return false;
   }
 }
 
@@ -42,4 +42,16 @@ export const generateRefreshToken = (user) => {
       expiresIn: "7d",
     }
   );
+};
+
+
+
+export const generateUniqueSlug = (name) => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')      // remove non-word characters
+    .replace(/\s+/g, '-')          // replace spaces with hyphens
+    .replace(/--+/g, '-')          // replace multiple hyphens with single
+    .replace(/^-+|-+$/g, '');      // trim hyphens from start/end
 };
