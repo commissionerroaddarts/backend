@@ -87,19 +87,23 @@ const createValidation = Joi.object({
         description: Joi.string().optional()
     }).optional(),
 
-    amenities: Joi.object({
-        wheelchairAccessible: Joi.boolean().optional(),
-        validatedParking: Joi.boolean().optional(),
-        smokingOutsideOnly: Joi.boolean().optional(),
-        outdoorSeating: Joi.boolean().optional(),
-        heatedOutdoorSeating: Joi.boolean().optional(),
-        bikeParking: Joi.boolean().optional(),
-        acceptsCreditCards: Joi.boolean().optional(),
-        freeWiFi: Joi.boolean().optional(),
-        tv: Joi.boolean().optional(),
-        happyHourSpecials: Joi.boolean().optional(),
-        coveredOutdoorSeating: Joi.boolean().optional()
-    }).optional(),
+    // amenities: Joi.object({
+    //     wheelchairAccessible: Joi.boolean().optional(),
+    //     validatedParking: Joi.boolean().optional(),
+    //     smokingOutsideOnly: Joi.boolean().optional(),
+    //     outdoorSeating: Joi.boolean().optional(),
+    //     heatedOutdoorSeating: Joi.boolean().optional(),
+    //     bikeParking: Joi.boolean().optional(),
+    //     acceptsCreditCards: Joi.boolean().optional(),
+    //     freeWiFi: Joi.boolean().optional(),
+    //     tv: Joi.boolean().optional(),
+    //     happyHourSpecials: Joi.boolean().optional(),
+    //     coveredOutdoorSeating: Joi.boolean().optional()
+    // }).optional(),
+
+     amenities: Joi.object()
+        .pattern(Joi.string(), Joi.boolean())
+        .optional(),
 
     validation: Joi.object({
         date: Joi.date().optional(),
@@ -201,24 +205,28 @@ const updateBusinessValidation = Joi.object({
         description: Joi.string().optional()
     }).optional(),
 
-    amenities: Joi.object({
-        wheelchairAccessible: Joi.boolean().optional(),
-        validatedParking: Joi.boolean().optional(),
-        smokingOutsideOnly: Joi.boolean().optional(),
-        outdoorSeating: Joi.boolean().optional(),
-        heatedOutdoorSeating: Joi.boolean().optional(),
-        bikeParking: Joi.boolean().optional(),
-        acceptsCreditCards: Joi.boolean().optional(),
-        freeWiFi: Joi.boolean().optional(),
-        tv: Joi.boolean().optional(),
-        happyHourSpecials: Joi.boolean().optional(),
-        coveredOutdoorSeating: Joi.boolean().optional()
-    }).optional(),
+    // amenities: Joi.object({
+    //     wheelchairAccessible: Joi.boolean().optional(),
+    //     validatedParking: Joi.boolean().optional(),
+    //     smokingOutsideOnly: Joi.boolean().optional(),
+    //     outdoorSeating: Joi.boolean().optional(),
+    //     heatedOutdoorSeating: Joi.boolean().optional(),
+    //     bikeParking: Joi.boolean().optional(),
+    //     acceptsCreditCards: Joi.boolean().optional(),
+    //     freeWiFi: Joi.boolean().optional(),
+    //     tv: Joi.boolean().optional(),
+    //     happyHourSpecials: Joi.boolean().optional(),
+    //     coveredOutdoorSeating: Joi.boolean().optional()
+    // }).optional(),
+
+    amenities: Joi.object()
+        .pattern(Joi.string(), Joi.boolean())
+        .optional(),
 
     validation: Joi.object({
-        date: Joi.date().optional(),
-        status: Joi.string().valid('Accredited', 'Validated', 'Not Validated').optional()
-    }).optional()
+            date: Joi.date().optional(),
+            status: Joi.string().valid('Accredited', 'Validated', 'Not Validated').optional()
+        }).optional()
 });
 
 export const validateCreate = validate(createValidation);
