@@ -2,7 +2,6 @@ import express from 'express';
 import {
   createBusiness,
   getAllBusinesses,
-  getBusinessById,
   updateBusiness,
   deleteBusiness,
   bulkCreateBusinesses,
@@ -10,7 +9,10 @@ import {
   uploadBusinessImage,
   uploadBusinessMedia,
   deleteBusinessMedia,
-  sendMessageToOwner
+  sendMessageToOwner,
+  checkBusinessNameAvailability,
+  updateSlugsForAllBusinesses,
+  getBusinessBySlug
 } from '../controllers/businessController.js';
 import upload from '../middlewares/uploadMiddleware.js';
 import { authMiddleware } from './../middlewares/authMiddleware.js';
@@ -27,7 +29,8 @@ const uploadMedia = upload.fields([
 
 // CRUD Routes
 router.get('/', getAllBusinesses);
-router.get('/:id', getBusinessById);
+router.get('/addslug', updateSlugsForAllBusinesses);
+router.get('/:slug', getBusinessBySlug);
 router.post('/bulk', authMiddleware, bulkCreateBusinesses);
 router.patch('/media/:id', authMiddleware,uploadMedia, uploadBusinessMedia);
 router.post('/', authMiddleware, uploadMedia, validateCreate, createBusiness);
@@ -38,6 +41,7 @@ router.delete('/:id', authMiddleware, deleteBusiness);
 router.delete('/media/:id', authMiddleware, deleteBusinessMedia);
 
 router.post('/contact/:id', sendMessageToOwner);
+router.post('/check-name', checkBusinessNameAvailability);
 
 
 export default router;
