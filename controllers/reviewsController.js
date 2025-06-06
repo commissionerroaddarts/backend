@@ -279,6 +279,7 @@ export const getAllReviews = async (req, res, next) => {
                     'user.email': '$userDoc.email',
                     'user.profileImg': '$userDoc.profileImg',
                     'business._id': '$businessDoc._id',
+                    'business.slug': '$businessDoc.slug',
                     'business.name': '$businessDoc.name',
                     'business.media.logo': '$businessDoc.media.logo',
                 }
