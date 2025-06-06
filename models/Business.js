@@ -5,7 +5,7 @@ const { Schema, model } = mongoose;
 const businessSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true },
-  slug: { type: String,  unique: true },
+  slug: { type: String, unique: true },
   tagline: { type: String, required: true },
   media: {
     images: { type: [String], default: undefined },
@@ -104,18 +104,25 @@ const businessSchema = new Schema({
     description: { type: String },
   },
 
+  // amenities: {
+  //   wheelchairAccessible: { type: Boolean, default: undefined },
+  //   validatedParking: { type: Boolean, default: undefined },
+  //   outdoorSmoking: { type: Boolean, default: undefined }, 
+  //   outdoorSeating: { type: Boolean, default: undefined },
+  //   heatedPatio: { type: Boolean, default: undefined }, 
+  //   bikeParking: { type: Boolean, default: undefined },
+  //   acceptsCreditCards: { type: Boolean, default: undefined },
+  //   freeWiFi: { type: Boolean, default: undefined },
+  //   tvOnSite: { type: Boolean, default: undefined }, 
+  //   happyHourSpecials: { type: Boolean, default: undefined },
+  //   coveredOutdoorSeating: { type: Boolean, default: undefined },
+  //   //petFriendly , reservationsAccepted, privateEventSpace,  
+  // }
+
   amenities: {
-    wheelchairAccessible: { type: Boolean, default: undefined },
-    validatedParking: { type: Boolean, default: undefined },
-    smokingOutsideOnly: { type: Boolean, default: undefined },
-    outdoorSeating: { type: Boolean, default: undefined },
-    heatedOutdoorSeating: { type: Boolean, default: undefined },
-    bikeParking: { type: Boolean, default: undefined },
-    acceptsCreditCards: { type: Boolean, default: undefined },
-    freeWiFi: { type: Boolean, default: undefined },
-    tv: { type: Boolean, default: undefined },
-    happyHourSpecials: { type: Boolean, default: undefined },
-    coveredOutdoorSeating: { type: Boolean, default: undefined }
+    type: Map,
+    of: Boolean,
+    default: {},
   }
 
 }, { timestamps: true });
