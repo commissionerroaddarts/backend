@@ -181,11 +181,20 @@ export const getAllBusinesses = async (req, res) => {
   }
 };
 
-// Get business by ID
+// Get business 
 export const getBusinessBySlug = async (req, res) => {
   try {
+
+
+    const { slug } = req.params;
+
+    const matchCondition = mongoose.Types.ObjectId.isValid(slug)
+  ? { $or: [{ _id: new mongoose.Types.ObjectId(slug) }, { slug }] }
+  : { slug };
+
+
     const businessData = await Business.aggregate([
-      { $match: { slug: req.params.slug} }, // Match the business
+      { $match: matchCondition  }, // Match the business
       {
         $lookup: {
           from: 'reviews', // collection name in db (MUST BE plural and lowercase usually)
@@ -217,6 +226,8 @@ export const getBusinessBySlug = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 export const checkBusinessNameAvailability = async (req, res) => {
   try {
