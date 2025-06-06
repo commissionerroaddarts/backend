@@ -6,12 +6,14 @@ import Review from '../models/Review.js';
 import { CONTACT_BUSINESS } from '../constants/emailTemplets.js';
 import { createNotification } from './../utils/createNotification.js';
 import sendMail from './../config/mail.js';
+import { generateUniqueSlug } from '../utils/helper.js';
 
 export const createBusiness = async (req, res) => {
   try {
     const businessData = {
       ...req.body,
       userId: req.user.id,
+      slug: generateUniqueSlug(req.body.name),
     };
 
     const { images, logo } = req.body.media || {};
@@ -180,10 +182,10 @@ export const getAllBusinesses = async (req, res) => {
 };
 
 // Get business by ID
-export const getBusinessById = async (req, res) => {
+export const getBusinessBySlug = async (req, res) => {
   try {
     const businessData = await Business.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } }, // Match the business
+      { $match: { slug: req.params.slug} }, // Match the business
       {
         $lookup: {
           from: 'reviews', // collection name in db (MUST BE plural and lowercase usually)
@@ -216,10 +218,50 @@ export const getBusinessById = async (req, res) => {
   }
 };
 
+export const checkBusinessNameAvailability = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Business name is required',
+      });
+    }
+
+    const existingBusiness = await Business.findOne({ name: name.trim() });
+
+    if (existingBusiness) {
+      return res.status(200).json({
+        success: false,
+        message: 'Name is already taken',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Name is available',
+    });
+  } catch (err) {
+    console.error('Error checking business name availability:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+
 // Update business by ID
 export const updateBusiness = async (req, res) => {
   try {
-    const business = await Business.findByIdAndUpdate(req.params.id, req.body, {
+
+    const businessData = {
+      ...req.body,
+      ...(req.body.name && { slug: generateUniqueSlug(req.body.name) }),
+    };
+
+    const business = await Business.findByIdAndUpdate(req.params.id, businessData, {
       new: true,
       runValidators: true
     });
@@ -544,5 +586,29 @@ export const sendMessageToOwner = async (req, res) => {
   } catch (error) {
     console.error('Error sending message to owner:', error);
     res.status(500).json({ message: 'Failed to notify business owner', error: error.message });
+  }
+};
+
+
+export const updateSlugsForAllBusinesses = async (req, res) => {
+  try {
+    const businesses = await Business.find({});
+    let updatedCount = 0;
+
+    for (const business of businesses) {
+      if (!business.slug && business.name) {
+        business.slug = generateUniqueSlug(business.name);
+        await business.save();
+        updatedCount++;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully added slugs to ${updatedCount} businesses.`,
+    });
+  } catch (error) {
+    console.error('Error adding slugs:', error);
+    res.status(500).json({ success: false, message: 'Error adding slugs', error: error.message });
   }
 };
