@@ -1,12 +1,16 @@
-import mongoose from 'mongoose';
-import Business from '../models/Business.js';
-import { deleteImage, uploadToCloudinary } from './../services/cloudinary.js';
-import _ from 'lodash';
-import Review from '../models/Review.js';
-import { CONTACT_BUSINESS } from '../constants/emailTemplets.js';
-import { createNotification } from './../utils/createNotification.js';
-import sendMail from './../config/mail.js';
-import { generateUniqueSlug } from '../utils/helper.js';
+import mongoose from "mongoose";
+import Business from "../models/Business.js";
+import { deleteImage, uploadToCloudinary } from "./../services/cloudinary.js";
+import _ from "lodash";
+import Review from "../models/Review.js";
+import { CONTACT_BUSINESS } from "../constants/emailTemplets.js";
+import { createNotification } from "./../utils/createNotification.js";
+import sendMail from "./../config/mail.js";
+import {
+  generateUniqueSlug,
+  buildAggregationPipeline,
+  buildMatchStage,
+} from "../utils/helper.js";
 
 export const createBusiness = async (req, res) => {
   try {
@@ -17,7 +21,7 @@ export const createBusiness = async (req, res) => {
     };
 
     const { images, logo } = req.body.media || {};
-    _.unset(businessData, 'media');
+    _.unset(businessData, "media");
 
     const business = await Business.create(businessData);
 
@@ -50,8 +54,8 @@ export const createBusiness = async (req, res) => {
     await business.save();
     res.status(201).json(business);
   } catch (err) {
-    console.error('Error creating business:', err);
-    res.status(500).json({ message: 'Failed to create business', error: err });
+    console.error("Error creating business:", err);
+    res.status(500).json({ message: "Failed to create business", error: err });
   }
 };
 
@@ -69,101 +73,36 @@ export const bulkCreateBusinesses = async (req, res) => {
 export const getAllBusinesses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-    const {
-      category,
-      priceCategory,
-      city,
-      state,
-      country,
-      bordtype,
-      agelimit,
-      user,
-      search,
-      sort = 'createdAt_desc',
-    } = req.query;
+    const { lat, lng, radius, sort = "createdAt_desc" } = req.query;
     const ratingFilter = req.query.rating ? parseFloat(req.query.rating) : null;
     const rating = isNaN(ratingFilter) ? null : ratingFilter;
-    const matchStage = {};
-
-
-    const buildRegex = (value) => ({ $regex: new RegExp(`^${value}$`, 'i') });
-
-    if (category) matchStage.category = buildRegex(category);
-    if (priceCategory) matchStage['price.category'] = priceCategory;
-    if (city) matchStage['location.city'] = buildRegex(city);
-    if (state) matchStage['location.state'] = buildRegex(state);
-    if (country) matchStage['location.country'] = buildRegex(country);
-    if (bordtype) matchStage.bordtype = buildRegex(bordtype);
-    if (agelimit) matchStage.agelimit = { $lte: parseInt(agelimit) };
-    if (user) matchStage.userId = new mongoose.Types.ObjectId(user);
-
-    if (search) {
-      matchStage.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { tagline: { $regex: search, $options: 'i' } },
-        { shortDis: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } },
-      ];
-    }
 
     const sortOptions = {
       createdAt_desc: { createdAt: -1 },
       createdAt_asc: { createdAt: 1 },
       rating_desc: { averageRating: -1 },
       rating_asc: { averageRating: 1 },
+      distance_asc: { distance: 1 },
     };
     const selectedSort = sortOptions[sort] || { createdAt: -1 };
 
+    const matchStage = buildMatchStage(req.query);
 
-    const businesses = await Business.aggregate([
-      { $match: matchStage },
-      {
-        $lookup: {
-          from: 'reviews',
-          localField: '_id',
-          foreignField: 'business',
-          as: 'reviews',
-        }
-      },
-      {
-        $addFields: {
-          totalRatings: { $size: '$reviews' },
-          averageRating: {
-            $cond: [
-              { $gt: [{ $size: '$reviews' }, 0] },
-              { $avg: '$reviews.ratings.overallRating' },
-              0
-            ]
-          }
-        }
-      },
-      {
-        $project: {
-          reviews: 0, // remove review docs
-        }
-      },
-      // Apply rating filter AFTER calculating averageRating
-      ...(rating ? [{ $match: { averageRating: { $gte: parseFloat(rating) } } }] : []),
-      {
-        $facet: {
-          // metadata: [{ $count: 'total' }],
-          data: [
-            { $sort: selectedSort },
-            { $skip: skip },
-            { $limit: limit }
-          ],
+    const pipeline = buildAggregationPipeline({
+      matchStage,
+      lat,
+      lng,
+      radius,
+      rating,
+      selectedSort,
+      skip,
+      limit,
+    });
 
-          totalCount: [
-            { $count: 'count' },
-          ],
-        }
-      }
-    ]);
-
-
+    const businesses = await Business.aggregate(pipeline);
 
     const totalItems = businesses[0].totalCount[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / limit);
@@ -181,43 +120,42 @@ export const getAllBusinesses = async (req, res) => {
   }
 };
 
-// Get business 
+// Get business
 export const getBusinessBySlug = async (req, res) => {
   try {
-
-
     const { slug } = req.params;
 
     const matchCondition = mongoose.Types.ObjectId.isValid(slug)
-  ? { $or: [{ _id: new mongoose.Types.ObjectId(slug) }, { slug }] }
-  : { slug };
-
+      ? { $or: [{ _id: new mongoose.Types.ObjectId(slug) }, { slug }] }
+      : { slug };
 
     const businessData = await Business.aggregate([
-      { $match: matchCondition  }, // Match the business
+      { $match: matchCondition }, // Match the business
       {
         $lookup: {
-          from: 'reviews', // collection name in db (MUST BE plural and lowercase usually)
-          localField: '_id',
-          foreignField: 'business',
-          as: 'reviews'
-        }
+          from: "reviews", // collection name in db (MUST BE plural and lowercase usually)
+          localField: "_id",
+          foreignField: "business",
+          as: "reviews",
+        },
       },
       {
         $addFields: {
-          averageRating: { $ifNull: [{ $avg: "$reviews.ratings.overallRating" }, 0] },
-          totalRatings: { $size: "$reviews" }
-        }
+          averageRating: {
+            $ifNull: [{ $avg: "$reviews.ratings.overallRating" }, 0],
+          },
+          totalRatings: { $size: "$reviews" },
+        },
       },
       {
         $project: {
-          reviews: 0 // don't send reviews array unless you want
-        }
-      }
+          reviews: 0, // don't send reviews array unless you want
+        },
+      },
     ]);
 
     if (!businessData.length) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     res.status(200).json(businessData[0]); // Send the first (and only) business object
@@ -227,8 +165,6 @@ export const getBusinessBySlug = async (req, res) => {
   }
 };
 
-
-
 export const checkBusinessNameAvailability = async (req, res) => {
   try {
     const { name } = req.body;
@@ -236,7 +172,7 @@ export const checkBusinessNameAvailability = async (req, res) => {
     if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Business name is required',
+        message: "Business name is required",
       });
     }
 
@@ -245,42 +181,45 @@ export const checkBusinessNameAvailability = async (req, res) => {
     if (existingBusiness) {
       return res.status(200).json({
         success: false,
-        message: 'Name is already taken',
+        message: "Name is already taken",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Name is available',
+      message: "Name is available",
     });
   } catch (err) {
-    console.error('Error checking business name availability:', err);
+    console.error("Error checking business name availability:", err);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: "Internal server error",
     });
   }
 };
 
-
 // Update business by ID
 export const updateBusiness = async (req, res) => {
   try {
-
     const businessData = {
       ...req.body,
       ...(req.body.name && { slug: generateUniqueSlug(req.body.name) }),
     };
 
-    const business = await Business.findByIdAndUpdate(req.params.id, businessData, {
-      new: true,
-      runValidators: true
-    });
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    const business = await Business.findByIdAndUpdate(
+      req.params.id,
+      businessData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!business)
+      return res.status(404).json({ message: "Business not found" });
     res.status(200).json({
       success: true,
-      message: 'Business updated successfully',
-      data: business
+      message: "Business updated successfully",
+      data: business,
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -291,14 +230,14 @@ export const updateBusiness = async (req, res) => {
 export const deleteBusiness = async (req, res) => {
   try {
     const business = await Business.findByIdAndDelete(req.params.id);
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business)
+      return res.status(404).json({ message: "Business not found" });
     await Review.deleteMany({ business: business._id });
-    res.status(200).json({ message: 'Business deleted successfully' });
+    res.status(200).json({ message: "Business deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // Upload business logo
 export const uploadBusinessLogo = async (req, res) => {
@@ -306,7 +245,9 @@ export const uploadBusinessLogo = async (req, res) => {
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+      return res
+        .status(400)
+        .json({ success: false, message: "No file uploaded" });
     }
 
     const businessId = req.params.id;
@@ -314,7 +255,7 @@ export const uploadBusinessLogo = async (req, res) => {
     const business = await Business.findById(businessId);
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     // if (req.user.id !== business.userid.toString()) {
@@ -324,24 +265,26 @@ export const uploadBusinessLogo = async (req, res) => {
     const public_id = `business_logo/logo_${businessId}`;
     const imageUrl = await uploadToCloudinary(file.buffer, public_id);
 
-    console.log('Logo URL:', imageUrl);
+    console.log("Logo URL:", imageUrl);
 
     const updatedBusiness = await Business.findByIdAndUpdate(
       businessId,
-      { 'media.logo': imageUrl },
+      { "media.logo": imageUrl },
       { new: true }
     );
 
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
-    res.status(200).json({ message: 'Logo uploaded successfully', logo: updatedBusiness.media.logo });
+    res.status(200).json({
+      message: "Logo uploaded successfully",
+      logo: updatedBusiness.media.logo,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // Upload a single business image
 export const uploadBusinessImage = async (req, res) => {
@@ -349,14 +292,16 @@ export const uploadBusinessImage = async (req, res) => {
     const files = req.files?.images;
 
     if (!files || files.length === 0) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+      return res
+        .status(400)
+        .json({ success: false, message: "No file uploaded" });
     }
 
     const businessId = req.params.id;
 
     const business = await Business.findById(businessId);
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     // if (req.user.id !== business.userid.toString()) {
@@ -377,31 +322,28 @@ export const uploadBusinessImage = async (req, res) => {
     await business.save();
 
     res.status(200).json({
-      message: 'Business image uploaded successfully',
-      images: business.media.images
+      message: "Business image uploaded successfully",
+      images: business.media.images,
     });
   } catch (error) {
-    console.error('Upload business image error:', error.message);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Upload business image error:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
 // Upload multiple business images
 export const uploadBusinessMedia = async (req, res, next) => {
-
   try {
-
     const businessId = req.params.id;
     const { images, businessLogo, businessCover } = req.files || {};
 
     const business = await Business.findById(businessId);
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     if (!images && !businessLogo && !businessCover) {
-      return res.status(400).json({ message: 'No files uploaded' });
+      return res.status(400).json({ message: "No files uploaded" });
     }
 
     const uploadedImages = [];
@@ -445,17 +387,13 @@ export const uploadBusinessMedia = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Business media uploaded successfully',
-      media: business.media
+      message: "Business media uploaded successfully",
+      media: business.media,
     });
-
   } catch (error) {
     next(error);
   }
-}
-
-
-
+};
 
 export const deleteBusinessMedia = async (req, res, next) => {
   try {
@@ -463,18 +401,20 @@ export const deleteBusinessMedia = async (req, res, next) => {
     const { url } = req.body;
 
     if (!url) {
-      return res.status(400).json({ message: 'Media URL is required' });
+      return res.status(400).json({ message: "Media URL is required" });
     }
 
     const business = await Business.findById(businessId);
     if (!business) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     let updated = false;
 
     if (business.media.images.includes(url)) {
-      business.media.images = business.media.images.filter(img => img !== url);
+      business.media.images = business.media.images.filter(
+        (img) => img !== url
+      );
       updated = true;
     }
 
@@ -489,7 +429,9 @@ export const deleteBusinessMedia = async (req, res, next) => {
     }
 
     if (!updated) {
-      return res.status(404).json({ message: 'URL not found in business media' });
+      return res
+        .status(404)
+        .json({ message: "URL not found in business media" });
     }
 
     // Delete from Cloudinary using your function
@@ -504,18 +446,13 @@ export const deleteBusinessMedia = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Media deleted successfully',
+      message: "Media deleted successfully",
       media: business.media,
     });
-
   } catch (error) {
     next(error);
   }
 };
-
-
-
-
 
 // Create or Update Promotion
 export const upsertPromotion = async (req, res) => {
@@ -528,12 +465,13 @@ export const upsertPromotion = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business)
+      return res.status(404).json({ message: "Business not found" });
 
     res.status(200).json({
       success: true,
-      message: 'Promotion created/updated successfully',
-      data: business.promotion
+      message: "Promotion created/updated successfully",
+      data: business.promotion,
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -549,18 +487,17 @@ export const deletePromotion = async (req, res) => {
       { new: true }
     );
 
-    if (!business) return res.status(404).json({ message: 'Business not found' });
+    if (!business)
+      return res.status(404).json({ message: "Business not found" });
 
     res.status(200).json({
       success: true,
-      message: 'Promotion deleted successfully'
+      message: "Promotion deleted successfully",
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
-
-
 
 export const sendMessageToOwner = async (req, res) => {
   try {
@@ -568,15 +505,18 @@ export const sendMessageToOwner = async (req, res) => {
 
     const { message, email, firstname } = req.body;
 
-    const businessExists = await Business.findById(businessId).populate('userId', 'email username');
+    const businessExists = await Business.findById(businessId).populate(
+      "userId",
+      "email username"
+    );
     if (!businessExists) {
-      return res.status(404).json({ message: 'Business not found' });
+      return res.status(404).json({ message: "Business not found" });
     }
 
     const notificationData = {
       userId: businessExists.userId._id,
       title: `${firstname} sent a message regarding ${businessExists.name}`,
-      link: `${process.env.FRONTEND_URL}/establishments/${businessExists._id}`
+      link: `${process.env.FRONTEND_URL}/establishments/${businessExists._id}`,
     };
 
     await createNotification(notificationData);
@@ -592,14 +532,16 @@ export const sendMessageToOwner = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Notification and email sent to business owner',
+      message: "Notification and email sent to business owner",
     });
   } catch (error) {
-    console.error('Error sending message to owner:', error);
-    res.status(500).json({ message: 'Failed to notify business owner', error: error.message });
+    console.error("Error sending message to owner:", error);
+    res.status(500).json({
+      message: "Failed to notify business owner",
+      error: error.message,
+    });
   }
 };
-
 
 export const updateSlugsForAllBusinesses = async (req, res) => {
   try {
@@ -619,7 +561,11 @@ export const updateSlugsForAllBusinesses = async (req, res) => {
       message: `Successfully added slugs to ${updatedCount} businesses.`,
     });
   } catch (error) {
-    console.error('Error adding slugs:', error);
-    res.status(500).json({ success: false, message: 'Error adding slugs', error: error.message });
+    console.error("Error adding slugs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding slugs",
+      error: error.message,
+    });
   }
 };
