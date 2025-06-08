@@ -80,8 +80,14 @@ export function buildMatchStage(query) {
   if (city) matchStage["location.city"] = buildRegex(city);
   if (state) matchStage["location.state"] = buildRegex(state);
   if (country) matchStage["location.country"] = buildRegex(country);
-  if (bordtype) matchStage.bordtype = buildRegex(bordtype);
-  if (agelimit) matchStage.agelimit = { $lte: parseInt(agelimit) };
+  matchStage.bordtype = buildRegex(bordtype);
+  if (agelimit) {
+    matchStage.$or = [
+      { agelimit: { $lte: parseInt(agelimit) } },
+      { agelimit: { $exists: false } },
+      { agelimit: null },
+    ];
+  }
   if (user) matchStage.userId = new mongoose.Types.ObjectId(user);
 
   if (amenities) {
