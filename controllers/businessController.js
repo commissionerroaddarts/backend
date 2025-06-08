@@ -103,6 +103,7 @@ export const getAllBusinesses = async (req, res) => {
     });
 
     const businesses = await Business.aggregate(pipeline);
+    console.log("Businesses found:", businesses);
 
     const totalItems = businesses[0].totalCount[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / limit);
