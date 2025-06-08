@@ -16,7 +16,6 @@ const router = express.Router();
 
 router.post("/", authMiddleware, validateCreateReview, createReview);
 router.post("/bulk", bulkCreateReviews);
-// router.get('/:business', authMiddleware, getAllReviews);
 router.get("/", getAllReviews);
 router.delete("/:id", authMiddleware, deleteReview);
 router.patch("/:id", authMiddleware, validateUpdateReview, updateReview);
