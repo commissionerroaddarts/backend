@@ -75,8 +75,16 @@ export const getAllBusinesses = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
+    const {
+      lat,
+      lng,
+      city,
+      state,
+      zipcode,
+      radius,
+      sort = "createdAt_desc",
+    } = req.query;
 
-    const { lat, lng, radius, sort = "createdAt_desc" } = req.query;
     const ratingFilter = req.query.rating ? parseFloat(req.query.rating) : null;
     const rating = isNaN(ratingFilter) ? null : ratingFilter;
 
@@ -91,7 +99,7 @@ export const getAllBusinesses = async (req, res) => {
 
     const matchStage = buildMatchStage(req.query);
 
-    const pipeline = buildAggregationPipeline({
+    const pipeline = await buildAggregationPipeline({
       matchStage,
       lat,
       lng,
@@ -100,6 +108,9 @@ export const getAllBusinesses = async (req, res) => {
       selectedSort,
       skip,
       limit,
+      city,
+      state,
+      zipcode,
     });
 
     const businesses = await Business.aggregate(pipeline);
