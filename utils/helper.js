@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import axios from "axios";
 
 export function cleanFields(fieldsString = "") {
   return fieldsString.replace(/\s+/g, "").replace(/,/g, " ");
@@ -81,13 +82,13 @@ export function buildMatchStage(query) {
   if (state) matchStage["location.state"] = buildRegex(state);
   if (country) matchStage["location.country"] = buildRegex(country);
   if (bordtype) matchStage.bordtype = buildRegex(bordtype);
-  // if (agelimit) {
-  //   matchStage.$or = [
-  //     { agelimit: { $lte: parseInt(agelimit) } },
-  //     { agelimit: { $exists: false } },
-  //     { agelimit: null },
-  //   ];
-  // }
+  if (agelimit) {
+    matchStage.$or = [
+      { agelimit: { $lte: parseInt(agelimit) } },
+      { agelimit: { $exists: false } },
+      { agelimit: null },
+    ];
+  }
   if (user) matchStage.userId = new mongoose.Types.ObjectId(user);
 
   if (amenities) {
@@ -104,13 +105,15 @@ export function buildMatchStage(query) {
       { shortDis: { $regex: search, $options: "i" } },
       { tags: { $regex: search, $options: "i" } },
       { "location.address": { $regex: search, $options: "i" } },
+      { bordtype: { $regex: search, $options: "i" } },
+      { "location.zipcode": { $regex: search, $options: "i" } },
     ];
   }
 
   return matchStage;
 }
 
-export function buildAggregationPipeline({
+export async function buildAggregationPipeline({
   matchStage,
   lat,
   lng,
@@ -119,11 +122,31 @@ export function buildAggregationPipeline({
   selectedSort,
   skip,
   limit,
+  city,
+  state,
+  zipcode,
 }) {
   const pipeline = [{ $match: matchStage }];
 
-  if (lat && lng && radius) {
-    const radiusInRadians = parseFloat(radius) / 6378.1;
+  let geocodedLat = lat;
+  let geocodedLng = lng;
+  let geocodedRadius = radius || 500;
+  // If no lat/lng provided, but city/state/zipcode is, geocode it
+  if ((!geocodedLat || !geocodedLng) && (city || state || zipcode)) {
+    const geocoded = await geocodeLocation({
+      city: city,
+      state: state,
+      zipcode: zipcode,
+    });
+    console.log("Geocoded location:", geocoded);
+    if (geocoded) {
+      geocodedLat = geocoded.lat;
+      geocodedLng = geocoded.lng;
+    }
+  }
+
+  if (geocodedLat && geocodedLng) {
+    const radiusInRadians = parseFloat(geocodedRadius) / 6378.1;
 
     pipeline.push(
       {
@@ -139,7 +162,7 @@ export function buildAggregationPipeline({
           locationPoint: {
             $geoWithin: {
               $centerSphere: [
-                [parseFloat(lng), parseFloat(lat)],
+                [parseFloat(geocodedLng), parseFloat(geocodedLat)],
                 radiusInRadians,
               ],
             },
@@ -192,3 +215,23 @@ export function buildAggregationPipeline({
 
   return pipeline;
 }
+
+export const geocodeLocation = async ({ city, state, zipcode }) => {
+  const addressParts = [city, state, zipcode].filter(Boolean);
+  const address = addressParts.join(", ");
+
+  if (!address) return null;
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+
+  const { data } = await axios.get(url);
+  const result = data.results[0];
+
+  if (result) {
+    const { lat, lng } = result.geometry.location;
+    return { lat, lng };
+  }
+
+  return null;
+};
