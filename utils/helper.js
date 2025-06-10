@@ -105,8 +105,9 @@ export function buildMatchStage(query) {
       { shortDis: { $regex: search, $options: "i" } },
       { tags: { $regex: search, $options: "i" } },
       { "location.address": { $regex: search, $options: "i" } },
-      { bordtype: { $regex: search, $options: "i" } },
       { "location.zipcode": { $regex: search, $options: "i" } },
+      { bordtype: { $regex: search, $options: "i" } },
+      { category: { $regex: search, $options: "i" } },
     ];
   }
 
