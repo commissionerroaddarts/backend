@@ -129,17 +129,31 @@ export async function buildAggregationPipeline({
 }) {
   const pipeline = [{ $match: matchStage }];
 
+  // Step 1: Add Geo filter
+  await addGeoFilterStage(pipeline, { lat, lng, radius, city, state, zipcode });
+
+  // Step 2: Lookup reviews, calculate averageRating and totalReviews
+  addReviewLookupStage(pipeline);
+
+  // Step 3: Filter by rating
+  addRatingFilterStage(pipeline, rating);
+
+  // Step 4: Sort, paginate, and count
+  addPaginationAndSortStage(pipeline, selectedSort, skip, limit);
+
+  return pipeline;
+}
+
+export async function addGeoFilterStage(
+  pipeline,
+  { lat, lng, radius = 1000, city, state, zipcode }
+) {
   let geocodedLat = lat;
   let geocodedLng = lng;
-  let geocodedRadius = radius || 500;
-  // If no lat/lng provided, but city/state/zipcode is, geocode it
-  if ((!geocodedLat || !geocodedLng) && (city || state || zipcode)) {
-    const geocoded = await geocodeLocation({
-      city: city,
-      state: state,
-      zipcode: zipcode,
-    });
-    console.log("Geocoded location:", geocoded);
+
+  if ((!lat || !lng) && (city || state || zipcode)) {
+    const geocoded = await geocodeLocation({ city, state, zipcode });
+    console.log(geocoded);
     if (geocoded) {
       geocodedLat = geocoded.lat;
       geocodedLng = geocoded.lng;
@@ -147,7 +161,7 @@ export async function buildAggregationPipeline({
   }
 
   if (geocodedLat && geocodedLng) {
-    const radiusInRadians = parseFloat(geocodedRadius) / 6378.1;
+    const radiusInRadians = parseFloat(radius) / 6378.1;
 
     pipeline.push(
       {
@@ -172,49 +186,6 @@ export async function buildAggregationPipeline({
       }
     );
   }
-
-  pipeline.push(
-    {
-      $lookup: {
-        from: "reviews",
-        localField: "_id",
-        foreignField: "business",
-        as: "reviews",
-      },
-    },
-    {
-      $addFields: {
-        totalRatings: { $size: "$reviews" },
-        averageRating: {
-          $cond: [
-            { $gt: [{ $size: "$reviews" }, 0] },
-            { $avg: "$reviews.ratings.overallRating" },
-            0,
-          ],
-        },
-      },
-    },
-    {
-      $project: {
-        reviews: 0,
-      },
-    }
-  );
-
-  if (rating) {
-    pipeline.push({
-      $match: { averageRating: { $gte: parseFloat(rating) } },
-    });
-  }
-
-  pipeline.push({
-    $facet: {
-      data: [{ $sort: selectedSort }, { $skip: skip }, { $limit: limit }],
-      totalCount: [{ $count: "count" }],
-    },
-  });
-
-  return pipeline;
 }
 
 export const geocodeLocation = async ({ city, state, zipcode }) => {
@@ -236,3 +207,50 @@ export const geocodeLocation = async ({ city, state, zipcode }) => {
 
   return null;
 };
+
+export function addReviewLookupStage(pipeline) {
+  pipeline.push(
+    {
+      $lookup: {
+        from: "reviews",
+        localField: "_id",
+        foreignField: "business",
+        as: "reviews",
+      },
+    },
+    {
+      $addFields: {
+        totalReviews: { $size: "$reviews" },
+        averageRating: {
+          $cond: [
+            { $gt: [{ $size: "$reviews" }, 0] },
+            { $avg: "$reviews.ratings.overallRating" },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        reviews: 0,
+      },
+    }
+  );
+}
+
+export function addRatingFilterStage(pipeline, rating) {
+  if (rating) {
+    pipeline.push({
+      $match: { averageRating: { $gte: parseFloat(rating) } },
+    });
+  }
+}
+
+export function addPaginationAndSortStage(pipeline, selectedSort, skip, limit) {
+  pipeline.push({
+    $facet: {
+      data: [{ $sort: selectedSort }, { $skip: skip }, { $limit: limit }],
+      totalCount: [{ $count: "count" }],
+    },
+  });
+}
