@@ -91,10 +91,13 @@ export const getAllBusinesses = async (req, res) => {
     const sortOptions = {
       createdAt_desc: { createdAt: -1 },
       createdAt_asc: { createdAt: 1 },
-      rating_desc: { averageRating: -1 },
+      rating_desc: { averageRating: -1 }, // Top Rated
       rating_asc: { averageRating: 1 },
+      reviews_desc: { totalReviews: -1 }, // Most Reviewed
+      recommended_desc: { recommendedCount: -1 }, // Recommended (you must define logic for this)
       distance_asc: { distance: 1 },
     };
+
     const selectedSort = sortOptions[sort] || { createdAt: -1 };
 
     const matchStage = buildMatchStage(req.query);
