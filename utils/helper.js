@@ -129,16 +129,27 @@ export async function buildAggregationPipeline({
 }) {
   const pipeline = [{ $match: matchStage }];
 
-  // Step 1: Add Geo filter
+  const sortingByNearby = lat && lng;
+  const sortingByReviews =
+    selectedSort?.averageRating || selectedSort?.totalReviews;
+
+  // Step 1: Add Geo filter (if lat/lng provided or location-based fields)
   await addGeoFilterStage(pipeline, { lat, lng, radius, city, state, zipcode });
 
-  // Step 2: Lookup reviews, calculate averageRating and totalReviews
+  // Step 2: Add reviews
   addReviewLookupStage(pipeline);
 
   // Step 3: Filter by rating
   addRatingFilterStage(pipeline, rating);
 
-  // Step 4: Sort, paginate, and count
+  // Step 4: Filter out businesses without reviews (if sorting by reviews)
+  if (!sortingByNearby && sortingByReviews) {
+    pipeline.push({
+      $match: { totalReviews: { $gt: 0 } },
+    });
+  }
+
+  // Step 5: Pagination & Sorting
   addPaginationAndSortStage(pipeline, selectedSort, skip, limit);
 
   return pipeline;
@@ -153,7 +164,6 @@ export async function addGeoFilterStage(
 
   if ((!lat || !lng) && (city || state || zipcode)) {
     const geocoded = await geocodeLocation({ city, state, zipcode });
-    console.log(geocoded);
     if (geocoded) {
       geocodedLat = geocoded.lat;
       geocodedLng = geocoded.lng;
