@@ -118,7 +118,6 @@ export async function buildAggregationPipeline({
   matchStage,
   lat,
   lng,
-  radius,
   rating,
   selectedSort,
   skip,
@@ -134,7 +133,7 @@ export async function buildAggregationPipeline({
     selectedSort?.averageRating || selectedSort?.totalReviews;
 
   // Step 1: Add Geo filter (if lat/lng provided or location-based fields)
-  await addGeoFilterStage(pipeline, { lat, lng, radius, city, state, zipcode });
+  await addGeoFilterStage(pipeline, { lat, lng, city, state, zipcode });
 
   // Step 2: Add reviews
   addReviewLookupStage(pipeline);
@@ -157,11 +156,12 @@ export async function buildAggregationPipeline({
 
 export async function addGeoFilterStage(
   pipeline,
-  { lat, lng, radius = 1000, city, state, zipcode }
+  { lat, lng, city, state, zipcode }
 ) {
   let geocodedLat = lat;
   let geocodedLng = lng;
 
+  // If lat/lng not provided, try geocoding
   if ((!lat || !lng) && (city || state || zipcode)) {
     const geocoded = await geocodeLocation({ city, state, zipcode });
     if (geocoded) {
@@ -171,30 +171,72 @@ export async function addGeoFilterStage(
   }
 
   if (geocodedLat && geocodedLng) {
-    const radiusInRadians = parseFloat(radius) / 6378.1;
-
-    pipeline.push(
-      {
-        $addFields: {
-          locationPoint: {
-            type: "Point",
-            coordinates: ["$location.geotag.lng", "$location.geotag.lat"],
-          },
-        },
-      },
-      {
-        $match: {
-          locationPoint: {
-            $geoWithin: {
-              $centerSphere: [
-                [parseFloat(geocodedLng), parseFloat(geocodedLat)],
-                radiusInRadians,
+    // Add distance calculation to all documents (if geotag exists)
+    pipeline.push({
+      $addFields: {
+        distance: {
+          $cond: [
+            {
+              $and: [
+                { $ifNull: ["$location.geotag.lat", false] },
+                { $ifNull: ["$location.geotag.lng", false] },
               ],
             },
-          },
+            {
+              $let: {
+                vars: {
+                  r: 6371,
+                  dLat: {
+                    $degreesToRadians: {
+                      $subtract: [
+                        { $toDouble: geocodedLat },
+                        { $toDouble: "$location.geotag.lat" },
+                      ],
+                    },
+                  },
+                  dLng: {
+                    $degreesToRadians: {
+                      $subtract: [
+                        { $toDouble: geocodedLng },
+                        { $toDouble: "$location.geotag.lng" },
+                      ],
+                    },
+                  },
+                  lat1: {
+                    $degreesToRadians: { $toDouble: "$location.geotag.lat" },
+                  },
+                  lat2: {
+                    $degreesToRadians: { $toDouble: geocodedLat },
+                  },
+                },
+                in: {
+                  $multiply: [
+                    "$$r",
+                    {
+                      $acos: {
+                        $add: [
+                          {
+                            $multiply: [{ $sin: "$$lat1" }, { $sin: "$$lat2" }],
+                          },
+                          {
+                            $multiply: [
+                              { $cos: "$$lat1" },
+                              { $cos: "$$lat2" },
+                              { $cos: "$$dLng" },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            null,
+          ],
         },
-      }
-    );
+      },
+    });
   }
 }
 
@@ -257,9 +299,17 @@ export function addRatingFilterStage(pipeline, rating) {
 }
 
 export function addPaginationAndSortStage(pipeline, selectedSort, skip, limit) {
+  let sortStage = {};
+
+  if (selectedSort?.averageRating) sortStage = { averageRating: -1 };
+  else if (selectedSort?.totalReviews) sortStage = { totalReviews: -1 };
+  else if (selectedSort?.distance)
+    sortStage = { distance: 1 }; // Closest first
+  else sortStage = { createdAt: -1 };
+
   pipeline.push({
     $facet: {
-      data: [{ $sort: selectedSort }, { $skip: skip }, { $limit: limit }],
+      data: [{ $sort: sortStage }, { $skip: skip }, { $limit: limit }],
       totalCount: [{ $count: "count" }],
     },
   });
