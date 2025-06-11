@@ -81,7 +81,6 @@ export const getAllBusinesses = async (req, res) => {
       city,
       state,
       zipcode,
-      radius,
       sort = "createdAt_desc",
     } = req.query;
 
@@ -95,7 +94,7 @@ export const getAllBusinesses = async (req, res) => {
       rating_asc: { averageRating: 1 },
       reviews_desc: { totalReviews: -1 }, // Most Reviewed
       recommended_desc: { recommendedCount: -1 }, // Recommended (you must define logic for this)
-      distance_asc: { distance: 1 },
+      nearest: { distance: 1 },
     };
 
     const selectedSort = sortOptions[sort] || { createdAt: -1 };
@@ -106,7 +105,6 @@ export const getAllBusinesses = async (req, res) => {
       matchStage,
       lat,
       lng,
-      radius,
       rating,
       selectedSort,
       skip,
