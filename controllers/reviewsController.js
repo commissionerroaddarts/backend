@@ -154,7 +154,7 @@ export const createReview = async (req, res, next) => {
     const notificationData = {
       userId: businessExists.userId,
       title: `${req.user.username} added review on ${businessExists.name}.`,
-      link: `${process.env.FRONTEND_URL}/establishments/${businessExists.id}`,
+      link: `${process.env.FRONTEND_URL_WWW}/establishments/${businessExists.id}`,
     };
 
     createNotification(notificationData);
