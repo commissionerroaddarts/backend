@@ -3,7 +3,10 @@ import Review from "../models/Review.js";
 import Business from "./../models/Business.js";
 import { createNotification } from "../utils/createNotification.js";
 import sendMail from "./../config/mail.js";
-import { REVIEW_NOTIFICATION } from "../constants/emailTemplets.js";
+import {
+  REVIEW_NOTIFICATION,
+  REVIEW_NOTIFICATION_ADMIN,
+} from "../constants/emailTemplets.js";
 
 export const bulkCreateReviews = async (req, res, next) => {
   try {
@@ -159,6 +162,15 @@ export const createReview = async (req, res, next) => {
     sendMail(
       REVIEW_NOTIFICATION(
         businessExists.userId.email,
+        businessExists.name,
+        notificationData.link
+      )
+    );
+
+    sendMail(
+      REVIEW_NOTIFICATION_ADMIN(
+        "support@roaddarts.com",
+        req.user.username,
         businessExists.name,
         notificationData.link
       )
