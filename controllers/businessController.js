@@ -178,6 +178,63 @@ export const getBusinessBySlug = async (req, res) => {
   }
 };
 
+export const checkEditBusinessPermission = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+
+    const matchCondition = mongoose.Types.ObjectId.isValid(slug)
+      ? { $or: [{ _id: new mongoose.Types.ObjectId(slug) }, { slug }] }
+      : { slug };
+
+    const businessData = await Business.aggregate([
+      { $match: matchCondition }, // Match the business
+      {
+        $lookup: {
+          from: "reviews", // collection name in db (MUST BE plural and lowercase usually)
+          localField: "_id",
+          foreignField: "business",
+          as: "reviews",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: {
+            $ifNull: [{ $avg: "$reviews.ratings.overallRating" }, 0],
+          },
+          totalRatings: { $size: "$reviews" },
+        },
+      },
+      {
+        $project: {
+          reviews: 0, // don't send reviews array unless you want
+        },
+      },
+    ]);
+
+    if (!businessData.length) {
+      return res.status(404).json({ message: "Business not found" });
+    }
+    const business = businessData[0];
+
+    // Check if the user is the owner of the business
+    if (req.user.id !== business.userId.toString()) {
+      return res.status(403).json({
+        message: "You are not authorized to edit this business",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "You have permission to edit this business",
+    });
+  } catch (err) {
+    console.error("Error checking edit business permission:", err);
+    res.status(500).json({
+      message: "Internal server error while checking permissions",
+      error: err.message,
+    });
+  }
+};
+
 export const checkBusinessNameAvailability = async (req, res) => {
   try {
     const { name } = req.body;

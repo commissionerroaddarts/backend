@@ -1,13 +1,11 @@
-const isProduction = process.env.NODE_ENV === 'production';
-
-const weekInMs = 7 * 24 * 60 * 60 * 1000;
+const isProduction = process.env.NODE_ENV === "production";
 
 export const cookieOptions = {
-    httpOnly: true,
-    secure: isProduction, // Use secure cookies only in production (HTTPS)
-    sameSite: isProduction ? 'None' : 'Lax', // 'None' for cross-origin in production, 'Lax' for local dev
-    path: '/',
-    maxAge: weekInMs, // 7 days in milliseconds
-    expires: new Date(Date.now() + weekInMs),
-    ...(isProduction ? { domain: ".roaddarts.com" } : {}),
+  httpOnly: true,
+  secure: isProduction, // ❗ false in dev
+  sameSite: isProduction ? "None" : "Lax", // ❗ Lax in dev
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  ...(isProduction ? { domain: ".roaddarts.com" } : {}),
 };
