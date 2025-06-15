@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import axios from "axios";
+import Stripe from "stripe";
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 export function cleanFields(fieldsString = "") {
   return fieldsString.replace(/\s+/g, "").replace(/,/g, " ");
@@ -314,3 +316,45 @@ export function addPaginationAndSortStage(pipeline, selectedSort, skip, limit) {
     },
   });
 }
+
+// auth helper functions
+
+const permissionsData = {
+  "Basic Plan": { maxListings: 1 },
+  "Standard Plan": { maxListings: 3 },
+  "Premium Plan": { maxListings: 9 },
+};
+
+export const getSubscriptionDetails = async (subscriptionId) => {
+  try {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const productId = subscription.items.data[0].price.product;
+    const product = await stripe.products.retrieve(productId);
+
+    const currentPeriodEnd =
+      subscription.billing_cycle_anchor + 30 * 24 * 60 * 60;
+    const subscriptionData = {
+      plan: product.name,
+      currentPeriodEnd,
+      isAutoRenew: !subscription.cancel_at_period_end,
+      status: subscription.status,
+    };
+
+    const permissions =
+      subscription.status === "active"
+        ? permissionsData[product.name]
+        : undefined;
+
+    return { subscriptionData, permissions };
+  } catch (err) {
+    console.error("Stripe Error:", err.message);
+    return { subscriptionData: undefined, permissions: undefined };
+  }
+};
+
+export const getSpecialUserPermissions = (email) => {
+  if (email === "trlong44@gmail.com") {
+    return { maxListings: 9999 };
+  }
+  return undefined;
+};
