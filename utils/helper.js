@@ -13,6 +13,7 @@ export function validateURL(v) {
     new URL(v);
     return true;
   } catch (err) {
+    console.error(err);
     return false;
   }
 }
