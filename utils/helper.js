@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import axios from "axios";
 import Stripe from "stripe";
+import mongoose from "mongoose";
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 export function cleanFields(fieldsString = "") {
