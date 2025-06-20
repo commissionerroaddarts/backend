@@ -125,7 +125,8 @@ const sendMail = async (data) => {
                     </tr>
                 </table>
 
-                <p class="email-footer">&copy; 2025 Road Dart | 45 B Road NY, USA</p>
+                <p class="email-footer">&copy; 2025 Road Dart | 11835 Carmel Mountain Rd San Diego, CA  92128
+</p>
             </td>
         </tr>
     </table>
