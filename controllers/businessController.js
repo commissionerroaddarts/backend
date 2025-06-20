@@ -245,11 +245,13 @@ export const checkBusinessNameAvailability = async (req, res) => {
         message: "Business name is required",
       });
     }
-
-    const existingBusiness = await Business.findOne({ name: name.trim() });
+    const lowerCaseName = name.trim().toLowerCase();
+    const existingBusiness = await Business.findOne({
+      name: { $regex: new RegExp(`^${lowerCaseName}$`, "i") },
+    });
 
     if (existingBusiness) {
-      return res.status(200).json({
+      return res.status(401).json({
         success: false,
         message: "Name is already taken",
       });

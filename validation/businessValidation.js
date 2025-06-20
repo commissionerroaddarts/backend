@@ -5,7 +5,7 @@ const createValidation = Joi.object({
   name: Joi.string().trim().required(),
   tagline: Joi.string().required(),
   shortDis: Joi.string().required(),
-  category: Joi.string().optional(),
+  category: Joi.string().allow("").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
   bordtype: Joi.string().valid("Steel Tip", "Soft Tip", "Both").required(),
   location: Joi.object({
@@ -13,64 +13,64 @@ const createValidation = Joi.object({
       lat: Joi.number().optional(),
       lng: Joi.number().optional(),
     }).optional(),
-    address: Joi.string().optional(),
-    state: Joi.string().optional(),
-    city: Joi.string().optional(),
-    country: Joi.string().optional(),
-    zipcode: Joi.string().optional(),
+    address: Joi.string().allow("").optional(),
+    state: Joi.string().allow("").optional(),
+    city: Joi.string().allow("").optional(),
+    country: Joi.string().allow("").optional(),
+    zipcode: Joi.string().allow("").optional(),
   }).optional(),
 
   timings: Joi.object({
     mon: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     tue: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     wed: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     thu: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     fri: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     sat: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     sun: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
   }).optional(),
 
   socials: Joi.object({
-    facebook: Joi.string().optional(),
-    instagram: Joi.string().optional(),
-    twitter: Joi.string().optional(),
-    linkedin: Joi.string().optional(),
-    youtube: Joi.string().optional(),
-    tiktok: Joi.string().optional(),
+    facebook: Joi.string().allow("").optional(),
+    instagram: Joi.string().allow("").optional(),
+    twitter: Joi.string().allow("").optional(),
+    linkedin: Joi.string().allow("").optional(),
+    youtube: Joi.string().allow("").optional(),
+    tiktok: Joi.string().allow("").optional(),
   }).optional(),
 
   faqs: Joi.array()
     .items(
       Joi.object({
-        q: Joi.string().optional(),
-        a: Joi.string().optional(),
+        q: Joi.string().allow("").optional(),
+        a: Joi.string().allow("").optional(),
       })
     )
     .optional(),
 
-  website: Joi.string().optional(),
-  phone: Joi.string().optional(),
+  website: Joi.string().allow("").optional(),
+  phone: Joi.string().allow("").optional(),
 
   price: Joi.object({
     category: Joi.string().valid("$", "$$", "$$$", "$$$$").optional(),
@@ -85,8 +85,8 @@ const createValidation = Joi.object({
     .optional(),
 
   promotion: Joi.object({
-    title: Joi.string().optional(),
-    description: Joi.string().optional(),
+    title: Joi.string().allow("").optional(),
+    description: Joi.string().allow("").optional(),
   }).optional(),
 
   // amenities: Joi.object({
@@ -132,9 +132,9 @@ const createValidation = Joi.object({
 
 const updateBusinessValidation = Joi.object({
   name: Joi.string().trim().optional(),
-  tagline: Joi.string().optional(),
-  shortDis: Joi.string().optional(),
-  category: Joi.string().optional(),
+  tagline: Joi.string().allow("").optional(),
+  shortDis: Joi.string().allow("").optional(),
+  category: Joi.string().allow("").optional(),
   tags: Joi.array().items(Joi.string()).optional(),
   bordtype: Joi.string().valid("Steel Tip", "Soft Tip", "Both").optional(),
 
@@ -143,67 +143,67 @@ const updateBusinessValidation = Joi.object({
       lat: Joi.number().optional(),
       lng: Joi.number().optional(),
     }).optional(),
-    address: Joi.string().optional(),
-    state: Joi.string().optional(),
-    city: Joi.string().optional(),
-    country: Joi.string().optional(),
-    zipcode: Joi.string().optional(),
+    address: Joi.string().allow("").optional(),
+    state: Joi.string().allow("").optional(),
+    city: Joi.string().allow("").optional(),
+    country: Joi.string().allow("").optional(),
+    zipcode: Joi.string().allow("").optional(),
   }).optional(),
 
   // media: Joi.object({
   //     images: Joi.array().items(Joi.string()).optional(),
-  //     video: Joi.string().optional(),
-  //     logo: Joi.string().optional()
+  //     video: Joi.string().allow('').optional(),
+  //     logo: Joi.string().allow('').optional()
   // }).optional(),
 
-  website: Joi.string().optional(),
-  phone: Joi.string().optional(),
+  website: Joi.string().allow("").optional(),
+  phone: Joi.string().allow("").optional(),
 
   timings: Joi.object({
     mon: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     tue: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     wed: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     thu: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     fri: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     sat: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
     sun: Joi.object({
-      open: Joi.string().optional(),
-      close: Joi.string().optional(),
+      open: Joi.string().allow("").optional(),
+      close: Joi.string().allow("").optional(),
     }).optional(),
   }).optional(),
 
   socials: Joi.object({
-    facebook: Joi.string().optional(),
-    instagram: Joi.string().optional(),
-    twitter: Joi.string().optional(),
-    linkedin: Joi.string().optional(),
-    youtube: Joi.string().optional(),
-    tiktok: Joi.string().optional(),
+    facebook: Joi.string().allow("").optional(),
+    instagram: Joi.string().allow("").optional(),
+    twitter: Joi.string().allow("").optional(),
+    linkedin: Joi.string().allow("").optional(),
+    youtube: Joi.string().allow("").optional(),
+    tiktok: Joi.string().allow("").optional(),
   }).optional(),
 
   faqs: Joi.array()
     .items(
       Joi.object({
-        q: Joi.string().optional(),
-        a: Joi.string().optional(),
+        q: Joi.string().allow("").optional(),
+        a: Joi.string().allow("").optional(),
       })
     )
     .optional(),
@@ -221,8 +221,8 @@ const updateBusinessValidation = Joi.object({
     .optional(),
 
   promotion: Joi.object({
-    title: Joi.string().optional(),
-    description: Joi.string().optional(),
+    title: Joi.string().allow("").optional(),
+    description: Joi.string().allow("").optional(),
   }).optional(),
 
   amenities: Joi.object({
