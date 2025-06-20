@@ -2,7 +2,13 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 import Stripe from "stripe";
 import mongoose from "mongoose";
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+const isProduction = process.env.NODE_ENV === "production";
+const stripe = Stripe(
+  isProduction
+    ? process.env.STRIPE_SECRET_KEY
+    : process.env.STRIPE_SECRET_TEST_KEY
+);
 
 export function cleanFields(fieldsString = "") {
   return fieldsString.replace(/\s+/g, "").replace(/,/g, " ");

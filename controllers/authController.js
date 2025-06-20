@@ -57,11 +57,12 @@ export const signup = async (req, res) => {
 
     // Save refreshToken in the user document
     user.refreshToken = refreshToken;
-
     const stripeSubscriptionId = await getStripeSubscriptionIdByEmail(
       user.email
     );
+    console.log(stripeSubscriptionId, user.email);
     if (stripeSubscriptionId) {
+      user.status = "verified";
       user.role = "owner";
       user.stripeSubscriptionId = stripeSubscriptionId;
     }

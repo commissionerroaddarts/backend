@@ -1,0 +1,119 @@
+[
+  {
+    "id": "prod_SH5Cz5MzAXQrpD",
+    "name": "Premium Plan",
+    "description": "Advanced Package – Maximize Engagement with Social Promotions",
+    "features": [
+      {
+        "name": "All Standard features"
+      },
+      {
+        "name": "Featured listing on homepage"
+      },
+      {
+        "name": "Unlimited photos"
+      },
+      {
+        "name": "Monthly promotional banner or spotlight ad"
+      },
+      {
+        "name": "Unlimited event promotions"
+      },
+      {
+        "name": "Direct messaging with potential customers"
+      },
+      {
+        "name": "Social media shoutout (1 per month)"
+      },
+      {
+        "name": "Up to 9 Venues"
+      }
+    ],
+    "prices": {
+      "yearly": {
+        "priceId": "price_1RP2ynIdyyxlPOdwFxhQsoUc",
+        "amount": 58800,
+        "currency": "usd"
+      },
+      "monthly": {
+        "priceId": "price_1RMX1vIdyyxlPOdwz2c22mcm",
+        "amount": 4900,
+        "currency": "usd"
+      }
+    }
+  },
+  {
+    "id": "prod_SH5Anf3eG1PiSv",
+    "name": "Standard Plan",
+    "description": "Recommended Package... \ufeffKnow who’s looking. Grow your game!",
+    "features": [
+      {
+        "name": "All Basic features"
+      },
+      {
+        "name": "Priority listing in search results"
+      },
+      {
+        "name": "Up to 5 photos"
+      },
+      {
+        "name": "Access to customer analytics (views, clicks)"
+      },
+      {
+        "name": "Up to 3 Venues"
+      },
+      {
+        "name": "Up to 5 Promotions/Month"
+      }
+    ],
+    "prices": {
+      "yearly": {
+        "priceId": "price_1RP2xCIdyyxlPOdwVZcmsjTg",
+        "amount": 22800,
+        "currency": "usd"
+      },
+      "monthly": {
+        "priceId": "price_1RMX04IdyyxlPOdwiK16wXXn",
+        "amount": 1900,
+        "currency": "usd"
+      }
+    }
+  },
+  {
+    "id": "prod_SH585Vts7xaQ66",
+    "name": "Basic Plan",
+    "description": "For less than 2 drinks per month... put your venue on the Map!",
+    "features": [
+      {
+        "name": "Business name, address, and contact info"
+      },
+      {
+        "name": "Listed in search results (lower priority)"
+      },
+      {
+        "name": "Up to 1 photo"
+      },
+      {
+        "name": "Business hours, website & social links"
+      },
+      {
+        "name": "Promotion of upcoming dart events or leagues (1 per month)"
+      },
+      {
+        "name": "Community rating & reviews"
+      }
+    ],
+    "prices": {
+      "yearly": {
+        "priceId": "price_1RONB8IdyyxlPOdw7d9wwon8",
+        "amount": 10800,
+        "currency": "usd"
+      },
+      "monthly": {
+        "priceId": "price_1RMWySIdyyxlPOdwaFhFZEuB",
+        "amount": 900,
+        "currency": "usd"
+      }
+    }
+  }
+]
