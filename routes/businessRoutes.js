@@ -14,6 +14,8 @@ import {
   updateSlugsForAllBusinesses,
   getBusinessBySlug,
   checkEditBusinessPermission,
+  bulkUpdateBusinesses,
+  bulkDeleteBusinesses,
 } from "../controllers/businessController.js";
 import upload from "../middlewares/uploadMiddleware.js";
 import { authMiddleware } from "./../middlewares/authMiddleware.js";
@@ -48,5 +50,14 @@ router.get(
   authMiddleware,
   checkEditBusinessPermission
 );
+// bulk update businesses
+router.patch(
+  "/update-businesses",
+  authMiddleware,
+  validateUpdate,
+  bulkUpdateBusinesses
+);
+// bulk delete businesses
+router.delete("/delete-businesses", authMiddleware, bulkDeleteBusinesses);
 
 export default router;

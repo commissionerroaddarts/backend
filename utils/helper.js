@@ -311,10 +311,17 @@ export function addRatingFilterStage(pipeline, rating) {
 export function addPaginationAndSortStage(pipeline, selectedSort, skip, limit) {
   let sortStage = {};
 
+  console.log(selectedSort);
   if (selectedSort?.averageRating) sortStage = { averageRating: -1 };
   else if (selectedSort?.totalReviews) sortStage = { totalReviews: -1 };
   else if (selectedSort?.distance)
     sortStage = { distance: 1 }; // Closest first
+  else if (selectedSort?.name === 1) sortStage = { name: 1 };
+  else if (selectedSort?.name === -1) {
+    sortStage = { name: -1 };
+  } else if (selectedSort?.createdAt === 1) sortStage = { createdAt: 1 };
+  else if (selectedSort?.createdAt === -1) sortStage = { createdAt: -1 };
+  else if (selectedSort?.recommended_desc) sortStage = { recommendedCount: -1 };
   else sortStage = { createdAt: -1 };
 
   pipeline.push({

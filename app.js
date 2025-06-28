@@ -7,6 +7,7 @@ import contactRoutes from "./routes/contactRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 import express from "express";
 import dotenv from "dotenv";
@@ -19,6 +20,8 @@ import { stripeWebhookFn } from "./config/stripe.js";
 import bodyParser from "body-parser";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { globalRateLimiter } from "./middlewares/rateLimiters.js";
+import { BetaAnalyticsDataClient } from "@google-analytics/data";
+import fs from "fs";
 // import { Pinecone } from "@pinecone-database/pinecone";
 
 // const pc = new Pinecone({
@@ -38,6 +41,15 @@ import { globalRateLimiter } from "./middlewares/rateLimiters.js";
 // });
 
 dotenv.config();
+
+// Load service account credentials
+const credentials = JSON.parse(
+  fs.readFileSync("service-account.json", "utf-8")
+);
+// Create GA4 client
+const analyticsDataClient = new BetaAnalyticsDataClient({
+  credentials,
+});
 
 // express setup
 const app = express();
@@ -81,7 +93,9 @@ app.use(passport.initialize());
 
 // =========================== Routes ===========================
 
+// Endpoint: GET /api/page-views
 app.get("/", (req, res) => res.json({ message: "✅ API is running... 3" }));
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/businesses", businessRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/users", userRoutes);

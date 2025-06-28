@@ -29,9 +29,9 @@ export const createBusiness = async (req, res) => {
     let logoUrl;
 
     if (images && images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
+      for (const image of images) {
         const imageUrl = await uploadToCloudinary(
-          images[i],
+          image,
           `business_images/${business._id}_${Date.now()}`
         );
         uploadedImages.push(imageUrl);
@@ -95,6 +95,8 @@ export const getAllBusinesses = async (req, res) => {
       reviews_desc: { totalReviews: -1 }, // Most Reviewed
       recommended_desc: { recommendedCount: -1 }, // Recommended (you must define logic for this)
       nearest: { distance: 1 },
+      name: { name: 1 }, // Sort by business name
+      name_desc: { name: -1 }, // Sort by business name descending
     };
 
     const selectedSort = sortOptions[sort] || { createdAt: -1 };
@@ -115,7 +117,6 @@ export const getAllBusinesses = async (req, res) => {
     });
 
     const businesses = await Business.aggregate(pipeline);
-    console.log("Businesses found:", businesses);
 
     const totalItems = businesses[0].totalCount[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / limit);
@@ -330,10 +331,6 @@ export const uploadBusinessLogo = async (req, res) => {
       return res.status(404).json({ message: "Business not found" });
     }
 
-    // if (req.user.id !== business.userid.toString()) {
-    //   return res.status(403).json({ message: 'Unauthorized to update this business' });
-    // }
-
     const public_id = `business_logo/logo_${businessId}`;
     const imageUrl = await uploadToCloudinary(file.buffer, public_id);
 
@@ -375,10 +372,6 @@ export const uploadBusinessImage = async (req, res) => {
     if (!business) {
       return res.status(404).json({ message: "Business not found" });
     }
-
-    // if (req.user.id !== business.userid.toString()) {
-    //   return res.status(403).json({ message: 'Unauthorized' });
-    // }
 
     const uploadedImageUrls = [];
 
@@ -422,9 +415,9 @@ export const uploadBusinessMedia = async (req, res, next) => {
     let logoUrl;
 
     if (images && images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
+      for (const image of images) {
         const imageUrl = await uploadToCloudinary(
-          images[i].buffer,
+          image.buffer,
           `business_images/${businessId}_${Date.now()}`
         );
         uploadedImages.push(imageUrl);
@@ -448,12 +441,6 @@ export const uploadBusinessMedia = async (req, res, next) => {
       );
       business.media.cover = coverUrl;
     }
-
-    // business.media = {
-    //   images: uploadedImages.length ? uploadedImages : business.media.images,
-    //   logo: logoUrl || business.media.logo,
-    //   // video: req.body.video || undefined,
-    // };
 
     await business.save();
 
@@ -639,5 +626,64 @@ export const updateSlugsForAllBusinesses = async (req, res) => {
       message: "Error adding slugs",
       error: error.message,
     });
+  }
+};
+
+// Bulk delete businesses
+export const bulkDeleteBusinesses = async (req, res) => {
+  try {
+    const { ids } = req.body; // Expecting an array of business IDs
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "No business IDs provided" });
+    }
+
+    const deletedBusinesses = await Business.find({ _id: { $in: ids } });
+
+    await Business.deleteMany({ _id: { $in: ids } });
+    await Review.deleteMany({ business: { $in: ids } });
+
+    res.status(200).json({
+      success: true,
+      message: "Selected businesses and related reviews deleted successfully",
+      deletedCount: deletedBusinesses.length,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+// Bulk update businesses
+export const bulkUpdateBusinesses = async (req, res) => {
+  try {
+    const { updates } = req.body;
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      return res.status(400).json({ message: "No updates provided" });
+    }
+
+    const bulkOps = updates.map((update) => {
+      const updateData = {
+        ...update.data,
+        ...(update.data.name && {
+          slug: generateUniqueSlug(update.data.name),
+        }),
+      };
+
+      return {
+        updateOne: {
+          filter: { _id: update.id },
+          update: updateData,
+        },
+      };
+    });
+
+    const result = await Business.bulkWrite(bulkOps);
+
+    res.status(200).json({
+      success: true,
+      message: "Businesses updated successfully",
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
