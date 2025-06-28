@@ -20,36 +20,8 @@ import { stripeWebhookFn } from "./config/stripe.js";
 import bodyParser from "body-parser";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { globalRateLimiter } from "./middlewares/rateLimiters.js";
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import fs from "fs";
-// import { Pinecone } from "@pinecone-database/pinecone";
-
-// const pc = new Pinecone({
-//   apiKey: process.env.PINECONE_API_KEY,
-// });
-
-// const indexName = "developer-quickstart-js";
-// await pc.createIndexForModel({
-//   name: indexName,
-//   cloud: "aws",
-//   region: "us-east-1",
-//   embed: {
-//     model: "llama-text-embed-v2",
-//     fieldMap: { text: "chunk_text" },
-//   },
-//   waitUntilReady: true,
-// });
 
 dotenv.config();
-
-// Load service account credentials
-const credentials = JSON.parse(
-  fs.readFileSync("service-account.json", "utf-8")
-);
-// Create GA4 client
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  credentials,
-});
 
 // express setup
 const app = express();

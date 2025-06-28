@@ -1,17 +1,9 @@
 // controllers/analyticsController.js
-import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import dotenv from "dotenv";
-import fs from "fs";
+import { analyticsDataClientExport } from "../utils/loadServiceAccount.js";
+const analyticsDataClient = analyticsDataClientExport;
 
 dotenv.config();
-
-const credentials = JSON.parse(
-  fs.readFileSync("service-account.json", "utf-8")
-);
-
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  credentials,
-});
 
 const propertyId = `properties/${process.env.GA_PROPERTY_ID}`;
 
